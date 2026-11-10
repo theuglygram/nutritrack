@@ -1,0 +1,25 @@
+{
+  "name": "@nutritrack/schemas",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Zod schemas shared by clients and server (ADR-005).",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@nutritrack/core": "workspace:*",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@nutritrack/config": "workspace:*",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "^5.1.0"
+  }
+}

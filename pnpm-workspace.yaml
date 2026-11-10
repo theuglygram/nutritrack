@@ -1,0 +1,17 @@
+packages:
+  - apps/*
+  - packages/*
+
+# One version of these across the whole monorepo.
+# Expo requires a single React / React Native version (docs.expo.dev/guides/monorepos).
+catalog:
+  typescript: ~6.0.3
+  react: 19.3.0
+  react-dom: 19.3.0
+  "@types/react": ~19.3.0
+  # ESLint 10 blocked until eslint-plugin-react / jsx-a11y / import (used by eslint-config-next) support it.
+  eslint: ^9.39.5
+
+allowBuilds:
+  sharp: false
+  unrs-resolver: false

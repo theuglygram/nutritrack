@@ -1,0 +1,34 @@
+# dependencies
+node_modules/
+
+# build output
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# expo
+.expo/
+web-build/
+expo-env.d.ts
+apps/mobile/ios/
+apps/mobile/android/
+
+# turbo
+.turbo/
+
+# env — never commit secrets
+.env
+.env*.local
+
+# testing
+coverage/
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+pnpm-debug.log*
+.vercel
