@@ -4,5 +4,6 @@ pnpm-lock.yaml
 .turbo
 dist
 coverage
+supabase/.temp
 apps/web/AGENTS.md
 apps/mobile/AGENTS.md

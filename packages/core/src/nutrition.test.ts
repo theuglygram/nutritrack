@@ -68,6 +68,23 @@ describe("scaleNutrients", () => {
     expect(scaleNutrients(profile, 100)).toEqual(profile);
   });
 
+  // Same inputs and expected outputs as supabase/tests/database/03_food_log.test.sql,
+  // so the client preview and the database snapshot provably agree.
+  it("matches the database snapshot for the same portion", () => {
+    const grams = gramsForServing(1.5, 220);
+    expect(grams).toBe(330);
+    expect(scaleNutrients(profile, grams)).toEqual({
+      energyKcal: 495,
+      proteinG: 3.96,
+      carbsG: 117.15,
+      fatG: 0.99,
+      fibreG: null,
+      sugarG: 0,
+      sodiumMg: null,
+    });
+    expect(scaleNutrients({ ...profile, energyKcal: 0.67 }, 150).energyKcal).toBe(1.01);
+  });
+
   it("rejects negative nutrient values and invalid grams", () => {
     expect(() => scaleNutrients({ ...profile, fatG: -1 }, 100)).toThrow(NutritionInputError);
     expect(() => scaleNutrients(profile, 0)).toThrow(NutritionInputError);

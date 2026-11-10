@@ -10,7 +10,7 @@ Read these before working on any stage:
 | ---------------------------------------------------- | -------------------------------------------------------- |
 | [docs/PRD.md](docs/PRD.md)                           | Product requirements and acceptance criteria             |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)         | Approved technical architecture                          |
-| [docs/DATABASE.md](docs/DATABASE.md)                 | Proposed schema, relationships and RLS                   |
+| [docs/DATABASE.md](docs/DATABASE.md)                 | Implemented schema, relationships and RLS                |
 | [docs/DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md) | Stages, milestones and exit criteria                     |
 | [docs/AI_RULES.md](docs/AI_RULES.md)                 | AI safety, food recognition and nutrition accuracy rules |
 | [docs/DECISIONS.md](docs/DECISIONS.md)               | Architectural decisions (accepted and open)              |
@@ -95,6 +95,10 @@ Requires Node 24+ and pnpm 12 (pinned via `packageManager`). Run from the repo r
 | `pnpm --filter @nutritrack/web dev`          | Web app at http://localhost:3000                                                  |
 | `pnpm --filter @nutritrack/mobile dev`       | Expo dev server (scan QR with Expo Go)                                            |
 | `pnpm --filter @nutritrack/web build`        | Production web build                                                              |
+| `pnpm db:start` / `pnpm db:stop`             | Start/stop local Supabase (needs Docker Desktop running)                          |
+| `pnpm db:reset`                              | Rebuild the local database from migrations                                        |
+| `pnpm db:test`                               | pgTAP security tests (run after any migration change)                             |
+| `pnpm db:types`                              | Regenerate `packages/types` from the local database (commit the result)           |
 
 Conventions:
 

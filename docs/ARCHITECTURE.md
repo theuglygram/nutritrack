@@ -52,8 +52,8 @@ nutritrack/
 │  ├─ core/           Pure TS business logic: nutrition calculation, unit/serving conversion,
 │  │                  BMR/TDEE/target calculation, daily totals. No React, no I/O. Fully unit-tested.
 │  ├─ schemas/        Zod schemas shared by clients and server (inputs, API payloads, AI outputs)
-│  ├─ types/          Shared TS types, including generated Supabase database types (created in Stage 02)
-│  ├─ api-client/     Typed data-access functions over the Supabase client (created in Stage 02)
+│  ├─ types/          Shared TS types, including generated Supabase database types (Stage 02)
+│  ├─ api-client/     Typed data-access functions over the Supabase client (created in Stage 03)
 │  └─ config/         Shared tsconfig, ESLint, Prettier, Tailwind presets
 ├─ supabase/
 │  ├─ migrations/     SQL migrations (schema, RLS, functions)

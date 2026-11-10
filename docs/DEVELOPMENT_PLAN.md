@@ -34,19 +34,19 @@ until the previous one is approved. Scope split follows ADR-026 in [DECISIONS.md
 - **Deliverables:** CLAUDE.md and docs/*.
 - **Exit:** documents and decisions approved (2026-11-10).
 
-### Stage 01 — Monorepo scaffold (awaiting approval)
+### Stage 01 — Monorepo scaffold ✅
 
 - **Scope:** git init, pnpm workspace + Turborepo, `apps/web` (Next.js + Tailwind + shadcn/ui), `apps/mobile` (Expo + Expo Router), `packages/core|schemas|config`, strict tsconfig, ESLint, Prettier, Vitest, CI. `packages/types` and `packages/api-client` move to Stage 02 (nothing to put in them before the database exists). Sentry/PostHog wiring deferred to Stage 09.
 - **Exit:** `pnpm install`, typecheck, lint and test pass; both apps start and render a basic home screen; one shared `core` function imported by both apps.
 
-### Stage 02 — Database
+### Stage 02 — Database ✅
 
-- **Scope:** Supabase local setup, migrations for the tables in DATABASE.md, RLS policies, `is_admin()`, triggers (profile creation, audit log), entitlement tables, generated types. Staging/prod projects created after the region latency check.
+- **Scope:** Supabase local setup, migrations for the tables in DATABASE.md, RLS policies, `is_admin()`, triggers (profile creation, audit log), entitlement tables, generated types (`packages/types`), pgTAP RLS tests and CI job. Staging/prod projects are created later, after the region latency check (before Release 1).
 - **Exit:** migrations apply cleanly from zero; RLS tests prove users cannot read or write other users' data.
 
 ### Stage 03 — Auth and onboarding
 
-- **Scope:** email/password, Google and Apple sign-in, password reset, onboarding, target calculation (ADR-024) in `packages/core`, profile editing, target override, consent capture.
+- **Scope:** email/password, Google and Apple sign-in, password reset, onboarding, target calculation (ADR-024) in `packages/core`, profile editing, target override, consent capture, `packages/api-client` (typed Supabase clients for web and mobile, ADR-030), web dark mode.
 - **Exit:** unit tests for target calculation including floors and rate limits; flows work on web and mobile with all four UI states.
 
 ### Stage 04 — Food database

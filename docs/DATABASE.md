@@ -1,15 +1,30 @@
 # NutriTrack — Database Design
 
-Status: **Proposed — not yet migrated.** This becomes real only through migrations in `supabase/migrations`
-(Stage 02). Column lists show intent, not final DDL.
+Status: **Implemented in Stage 02.** The source of truth is the SQL in
+[`supabase/migrations`](../supabase/migrations); this document explains it. Security behaviour is proven by
+the pgTAP tests in [`supabase/tests/database`](../supabase/tests/database) (`pnpm db:test`).
+TypeScript types are generated into `packages/types` (`pnpm db:types`).
 
 Conventions:
 
-- Primary keys `id uuid default gen_random_uuid()`. Log tables accept client-generated UUIDs so offline sync is idempotent (ADR-018).
-- `created_at`, `updated_at timestamptz` on all mutable tables.
-- User-owned tables carry `user_id uuid references auth.users(id) on delete cascade`.
-- Nutrient amounts stored as `numeric`, not float. Energy in kcal, macros in grams, water in ml, weight in kg.
-- RLS **enabled on every table**.
+- Primary keys `id uuid default gen_random_uuid()`. Log tables accept client-generated ids so offline sync replays are idempotent upserts (ADR-018).
+- `created_at`, `updated_at timestamptz`; `updated_at` maintained by trigger.
+- User-owned tables carry `user_id uuid not null default auth.uid() references auth.users on delete cascade`, so deleting an account removes all of the user's data (ADR-021).
+- Nutrient amounts are `numeric` (exact decimals), not floats. Energy in kcal, macros in g, sodium in mg, water in ml, weight in kg.
+- Unknown nutrient values are `null`, never 0 (ADR-011).
+- RLS is **enabled on every table**. The `anon` role has no access to any app table, including tables added by future migrations (default privileges revoked).
+- Functions use `set search_path = ''` and fully-qualified names.
+
+| Migration                | Contents                                                                          |
+| ------------------------ | --------------------------------------------------------------------------------- |
+| `…170000_foundations`    | `pg_trgm`, enums, `set_updated_at()`, anon default privileges revoked             |
+| `…170100_users`          | `profiles` (+ sign-up trigger), `user_roles`, `is_admin()`, `user_goals`          |
+| `…170200_food_catalogue` | reference tables, `foods` and child tables, `food_submissions`, `can_edit_food()` |
+| `…170300_logging`        | `food_log_entries` (+ snapshot trigger), `weight_entries`, `water_entries`        |
+| `…170400_ai`             | recognition jobs, candidates, assistant conversations and messages                |
+| `…170500_billing`        | `entitlements`, `ai_usage`                                                        |
+| `…170600_audit`          | `audit_log` and triggers on all catalogue tables                                  |
+| `…170700_storage`        | private `meal-photos` bucket and owner-only policies                              |
 
 ---
 
@@ -20,19 +35,19 @@ erDiagram
   auth_users ||--|| profiles : has
   auth_users ||--o{ user_goals : sets
   auth_users ||--o{ user_roles : has
+  data_sources ||--o{ foods : "sourced from"
+  cooking_methods ||--o{ foods : "prepared by"
   foods ||--o{ food_aliases : "known as"
-  foods ||--|| food_nutrients : "per 100 g"
+  foods ||--o| food_nutrients : "per 100 g"
   foods ||--o{ food_servings : "measured in"
   serving_units ||--o{ food_servings : defines
-  cooking_methods ||--o{ foods : "prepared by"
-  data_sources ||--o{ foods : "sourced from"
-  foods ||--o{ recipe_ingredients : "is recipe"
-  foods ||--o{ recipe_ingredients : "is ingredient"
-  auth_users ||--o{ meal_logs : logs
-  meal_logs ||--o{ meal_log_items : contains
-  foods ||--o{ meal_log_items : references
+  foods ||--o{ recipe_ingredients : "recipe / ingredient"
+  auth_users ||--o{ foods : "owns custom"
+  auth_users ||--o{ food_log_entries : logs
+  foods ||--o{ food_log_entries : references
+  serving_units ||--o{ food_log_entries : "portion unit"
   ai_recognition_jobs ||--o{ ai_candidates : produces
-  ai_candidates }o--o| meal_log_items : "confirmed as"
+  ai_candidates |o--o{ food_log_entries : "confirmed as"
   auth_users ||--o{ weight_entries : records
   auth_users ||--o{ water_entries : records
   auth_users ||--o{ assistant_conversations : starts
@@ -43,80 +58,98 @@ erDiagram
 
 ### Users
 
-| Table        | Key columns                                                                                                                                                          | Notes                                |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
-| `profiles`   | `id` (= auth user id), display_name, sex, date_of_birth, height_cm, activity_level, unit_preference                                                                  | Created by trigger on sign-up        |
-| `user_goals` | user_id, goal_type (lose/maintain/gain), target_weight_kg, target_rate_kg_per_week, calorie_target, protein_g, carbs_g, fat_g, water_ml, is_override, effective_from | History kept; latest row is active   |
-| `user_roles` | user_id, role (`admin`)                                                                                                                                              | Only service role / admins can write |
+| Table        | Key columns                                                                                                                                                                   | Notes                                                                          |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `profiles`   | `id` (= auth user id), display_name, sex, date_of_birth, height_cm, activity_level, onboarding_completed_at, health_data_consent_at, consent_version, photo_evaluation_opt_in | Created by trigger on sign-up. Photo evaluation is opt-in (default false)      |
+| `user_roles` | user_id, role (`admin`)                                                                                                                                                       | No write policies: granted only with the service role                          |
+| `user_goals` | goal_type, target_weight_kg, target_rate_kg_per_week, calorie_target, protein_g, carbs_g, fat_g, water_ml, is_override, effective_from                                        | History: insert-only; latest effective row is active. Broad sanity bounds only |
 
 ### Food catalogue
 
-| Table                            | Key columns                                                                                                                                                                               | Notes                                                      |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| `data_sources`                   | name, citation, url, licence, notes                                                                                                                                                       | Every verified food must reference one                     |
-| `cooking_methods`                | name (boiled, fried, roasted, stewed, raw, …)                                                                                                                                             |                                                            |
-| `foods`                          | name, category, cooking_method_id, is_composite, data_source_id, verification_status (`verified`/`unverified`/`rejected`), owner_user_id (null = global; set = user's custom food), notes |                                                            |
-| `food_aliases`                   | food_id, alias, language (en/yo/ig/ha/pcm)                                                                                                                                                | Powers search; trigram index                               |
-| `food_nutrients`                 | food_id, energy_kcal, protein_g, carbs_g, fat_g, fibre_g, sugar_g, sodium_mg, … (all per 100 g, nullable)                                                                                 | Null = unknown, never 0 by default                         |
-| `serving_units`                  | name (wrap, derica, mudu, cooking spoon, piece, plate, cup, sachet, bottle, gram), kind (mass/volume/count)                                                                               |                                                            |
-| `food_servings`                  | food_id, serving_unit_id, grams, is_estimate, data_source_id                                                                                                                              | Unit → grams is per food (a wrap of eba ≠ a wrap of amala) |
-| `recipes` / `recipe_ingredients` | recipe food_id, ingredient food_id, grams, cooked_yield_grams                                                                                                                             | For composite dishes; nutrients derived deterministically  |
+| Table                | Key columns                                                                                                             | Notes                                                                                       |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `data_sources`       | name, citation, url, licence, notes                                                                                     | Every verified food and every measured serving must reference one                           |
+| `cooking_methods`    | name                                                                                                                    | Case-insensitive unique                                                                     |
+| `serving_units`      | name, kind (mass/volume/count), grams_per_unit                                                                          | `grams_per_unit` only for universal units (gram = 1); otherwise per food in `food_servings` |
+| `foods`              | name, category, cooking_method_id, is_composite, recipe_yield_grams, data_source_id, verification_status, owner_user_id | `owner_user_id` null = global (admin-managed); set = private custom food                    |
+| `food_aliases`       | food_id, alias, language (en/yo/ig/ha/pcm)                                                                              | Trigram index for fuzzy search                                                              |
+| `food_nutrients`     | food_id, energy_kcal, protein_g, carbs_g, fat_g, fibre_g, sugar_g, sodium_mg (per 100 g)                                | Same keys as `NUTRIENT_KEYS` in `packages/core`. Plausibility bounds enforced               |
+| `food_servings`      | food_id, serving_unit_id, grams, is_estimate, data_source_id                                                            | Unit → grams per food (a wrap of eba ≠ a wrap of amala). Defaults to estimate               |
+| `recipe_ingredients` | recipe_food_id, ingredient_food_id, grams                                                                               | Composite dishes; nutrients derived deterministically (Stage 04)                            |
+| `food_submissions`   | submitted_by, payload, status, reviewer_notes, reviewed_by, reviewed_at                                                 | User submissions for admin review                                                           |
 
 ### Logging
 
-| Table            | Key columns                                                                                                                                                               | Notes                                           |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| `meal_logs`      | user_id, log_date, meal_slot (breakfast/lunch/dinner/snack)                                                                                                               | Unique (user_id, log_date, meal_slot)           |
-| `meal_log_items` | meal_log_id, user_id, food_id, serving_unit_id, quantity, grams, **snapshot** of energy_kcal/protein_g/carbs_g/fat_g/…, entry_method (manual/text/photo), ai_candidate_id | Snapshot preserves history if catalogue changes |
-| `weight_entries` | user_id, measured_on, weight_kg                                                                                                                                           |                                                 |
-| `water_entries`  | user_id, logged_at, amount_ml, unit_label                                                                                                                                 |                                                 |
+| Table              | Key columns                                                                                                                                                | Notes                                                                                    |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `food_log_entries` | log_date, meal_slot, food_id, serving_unit_id, quantity, entry_method, ai_candidate_id; **snapshot:** food_name, grams, energy_kcal, protein_g … sodium_mg | Each entry stands alone (no parent meal row) so offline devices never conflict (ADR-029) |
+| `weight_entries`   | measured_on, weight_kg                                                                                                                                     | One per user per day                                                                     |
+| `water_entries`    | logged_at, amount_ml, unit_label                                                                                                                           |                                                                                          |
 
-### AI
+**Snapshot trigger (ADR-029).** On insert, or when food/unit/quantity change, the database computes
+`grams = round(quantity × grams_per_unit, 2)` and `nutrient = round(per_100g × grams / 100, 2)` from the
+catalogue. Client-supplied snapshot values are always overwritten. Editing other fields (e.g. moving an
+entry to dinner) keeps the original snapshot even if the catalogue has since changed. Postgres `numeric`
+rounding matches `roundTo()` in `packages/core`; both test suites assert the same examples. The lookup runs
+with the user's permissions, so users can only log foods they can see.
 
-| Table                     | Key columns                                                                                                                                                                 | Notes                      |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| `ai_recognition_jobs`     | user_id, input_type (text/photo), input_text, photo_path, model, status, raw_output jsonb, created_at                                                                       | Raw output kept for review |
-| `ai_candidates`           | job_id, user_id, label, matched_food_id, suggested_quantity, suggested_unit_id, confidence, final_food_id, final_quantity, final_unit_id, outcome (accepted/edited/removed) | Captures user corrections  |
-| `assistant_conversations` | user_id, title                                                                                                                                                              |                            |
-| `assistant_messages`      | conversation_id, user_id, role, content, model, tokens                                                                                                                      |                            |
+### AI (written by Edge Functions with the service role)
+
+| Table                     | Key columns                                                                                       | Notes                                |
+| ------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `ai_recognition_jobs`     | input_type, input_text, photo_path, model, status, raw_output, error                              | Raw model output kept for review     |
+| `ai_candidates`           | label, matched_food_id, suggested_quantity/unit, confidence, final_food_id/quantity/unit, outcome | Captures user corrections            |
+| `assistant_conversations` | title                                                                                             | Users may delete their conversations |
+| `assistant_messages`      | role, content, model, input_tokens, output_tokens                                                 |                                      |
+
+Child rows reference their parent by `(id, user_id)`, so a candidate or message can never belong to a
+different user than its parent.
+
+### Billing (ADR-019, written by webhooks with the service role)
+
+| Table          | Key columns                           | Notes                                    |
+| -------------- | ------------------------------------- | ---------------------------------------- |
+| `entitlements` | user_id, tier, source, valid_until    | No row = free tier                       |
+| `ai_usage`     | user_id, feature, period_start, count | Free-tier AI limits enforced server-side |
 
 ### Admin
 
-| Table              | Key columns                                                        | Notes                                   |
-| ------------------ | ------------------------------------------------------------------ | --------------------------------------- |
-| `food_submissions` | submitted_by, payload jsonb, status, reviewed_by, reviewed_at      | User-submitted foods for review         |
-| `audit_log`        | actor_id, action, table_name, record_id, before jsonb, after jsonb | Written by triggers on catalogue tables |
+| Table       | Key columns                                            | Notes                                                                                   |
+| ----------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| `audit_log` | actor_id, action, table_name, record_id, before, after | Written by triggers on all catalogue tables. Users' private custom foods are not logged |
 
-### Billing (ADR-019)
+## 3. Access rules (RLS)
 
-| Table          | Key columns                                                             | Notes                                    |
-| -------------- | ----------------------------------------------------------------------- | ---------------------------------------- |
-| `entitlements` | user_id, tier (free/premium), source (paystack/revenuecat), valid_until | Written only by server webhooks          |
-| `ai_usage`     | user_id, feature, period_start, count                                   | Enforces free-tier AI limits server-side |
+| Table group                                                    | Read                                                                     | Write                                                  |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------ |
+| profiles                                                       | owner                                                                    | owner updates; created by trigger                      |
+| user_goals                                                     | owner                                                                    | owner inserts (history, no updates)                    |
+| food_log_entries, weight_entries, water_entries                | owner                                                                    | owner                                                  |
+| foods and child tables (aliases, nutrients, servings, recipes) | global foods unless rejected (admins see rejected too); own custom foods | admins for global foods; owners for their custom foods |
+| data_sources, cooking_methods, serving_units                   | any signed-in user                                                       | admins                                                 |
+| food_submissions                                               | submitter and admins                                                     | submitter inserts as pending; admins review            |
+| ai__, assistant__, entitlements, ai_usage                      | owner                                                                    | service role only (users may delete conversations)     |
+| user_roles                                                     | own role; admins all                                                     | service role only                                      |
+| audit_log                                                      | admins                                                                   | triggers only                                          |
+| storage `meal-photos` (private, 5 MiB, images)                 | owner's folder `{user_id}/…`                                             | owner's folder                                         |
 
-## 3. RLS summary
+Helpers: `is_admin()` (security definer, reads `user_roles`) and `can_edit_food(food_id)`.
+Even admins cannot read other users' profiles, logs or custom foods.
 
-| Table group                                                                                       | Select                                                                 | Insert / Update / Delete                           |
-| ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------- |
-| profiles, user_goals, meal_logs, meal_log_items, weight_entries, water_entries, ai__, assistant__ | owner only (`user_id = auth.uid()`)                                    | owner only                                         |
-| foods, food_aliases, food_nutrients, food_servings                                                | everyone: global foods with status ≠ rejected; owner: own custom foods | admin for global foods; owner for own custom foods |
-| data_sources, cooking_methods, serving_units, recipes                                             | everyone                                                               | admin only                                         |
-| user_roles, audit_log                                                                             | admin only                                                             | service role / triggers only                       |
-| food_submissions                                                                                  | submitter (own) + admin                                                | submitter inserts; admin updates                   |
-| storage `meal-photos`                                                                             | owner path prefix                                                      | owner path prefix                                  |
+## 4. Integrity rules
 
-Admin check: a `security definer` function `is_admin()` reading `user_roles`, used in policies.
+- `CHECK` constraints: quantity 0–10,000; grams > 0; weight 20–400 kg; water 1–5,000 ml per entry; height 50–272 cm; calorie target 500–10,000 (safety floors live in `packages/core`, ADR-024).
+- Per-100 g plausibility: energy 0–900 kcal; protein/carbs/fat/fibre/sugar 0–100 g; sodium 0–40,000 mg.
+- A food can only be `verified` with a data source; custom foods are always `unverified`.
+- A serving weight can only be marked measured (not an estimate) with a data source.
+- Logged foods cannot be deleted while referenced (deleting an account still works: the user's own entries and custom foods are removed together).
 
-## 4. Indexes (initial)
+## 5. Commands
 
-- `food_aliases(alias)` and `foods(name)` — `pg_trgm` GIN for fuzzy search.
-- `meal_logs(user_id, log_date)`, `meal_log_items(meal_log_id)`.
-- `weight_entries(user_id, measured_on)`, `water_entries(user_id, logged_at)`.
-- `ai_candidates(job_id)`.
-
-## 5. Integrity rules
-
-- `CHECK` quantity > 0, grams > 0, weight_kg within a plausible range, amount_ml > 0.
-- `verification_status = 'verified'` requires `data_source_id` not null.
-- Nutrient columns nullable; unknown ≠ zero.
-- Deleting a food that has been logged is blocked; use `rejected`/archived status instead.
+| Command         | What it does                                       |
+| --------------- | -------------------------------------------------- |
+| `pnpm db:start` | Start local Supabase (Docker) and apply migrations |
+| `pnpm db:reset` | Rebuild the local database from migrations         |
+| `pnpm db:test`  | Run the pgTAP security tests                       |
+| `pnpm db:types` | Regenerate `packages/types/src/database.ts`        |
+| `pnpm db:stop`  | Stop local Supabase                                |
