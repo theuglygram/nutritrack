@@ -86,19 +86,22 @@ If something is ambiguous, ask before making a major architectural decision.
 
 Requires Node 24+ and pnpm 12 (pinned via `packageManager`). Run from the repo root:
 
-| Command                                      | What it does                                                                      |
-| -------------------------------------------- | --------------------------------------------------------------------------------- |
-| `pnpm install`                               | Install all workspace dependencies                                                |
-| `pnpm check`                                 | Lint + typecheck + test across the workspace (run before declaring any task done) |
-| `pnpm lint` / `pnpm typecheck` / `pnpm test` | Individual Turborepo tasks                                                        |
-| `pnpm format` / `pnpm format:check`          | Prettier write / verify                                                           |
-| `pnpm --filter @nutritrack/web dev`          | Web app at http://localhost:3000                                                  |
-| `pnpm --filter @nutritrack/mobile dev`       | Expo dev server (scan QR with Expo Go)                                            |
-| `pnpm --filter @nutritrack/web build`        | Production web build                                                              |
-| `pnpm db:start` / `pnpm db:stop`             | Start/stop local Supabase (needs Docker Desktop running)                          |
-| `pnpm db:reset`                              | Rebuild the local database from migrations                                        |
-| `pnpm db:test`                               | pgTAP security tests (run after any migration change)                             |
-| `pnpm db:types`                              | Regenerate `packages/types` from the local database (commit the result)           |
+| Command                                                 | What it does                                                                      |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `pnpm install`                                          | Install all workspace dependencies                                                |
+| `pnpm check`                                            | Lint + typecheck + test across the workspace (run before declaring any task done) |
+| `pnpm lint` / `pnpm typecheck` / `pnpm test`            | Individual Turborepo tasks                                                        |
+| `pnpm format` / `pnpm format:check`                     | Prettier write / verify                                                           |
+| `pnpm --filter @nutritrack/web dev`                     | Web app at http://localhost:3000                                                  |
+| `pnpm --filter @nutritrack/mobile dev`                  | Expo dev server (scan QR with Expo Go)                                            |
+| `pnpm --filter @nutritrack/web build`                   | Production web build                                                              |
+| `pnpm db:start` / `pnpm db:stop`                        | Start/stop local Supabase (needs Docker Desktop running)                          |
+| `pnpm db:reset`                                         | Rebuild the local database from migrations                                        |
+| `pnpm db:test`                                          | pgTAP security tests (run after any migration change)                             |
+| `pnpm db:types`                                         | Regenerate `packages/types` from the local database (commit the result)           |
+| `pnpm env:local`                                        | Write `apps/web/.env.local` and `apps/mobile/.env` from the running local stack   |
+| `pnpm --filter @nutritrack/api-client test:integration` | Auth + onboarding against local Supabase (reads codes from Mailpit)               |
+| `pnpm --filter @nutritrack/web test:e2e`                | Playwright end-to-end tests (run `pnpm --filter @nutritrack/web build` first)     |
 
 Conventions:
 

@@ -15,16 +15,17 @@ Conventions:
 - RLS is **enabled on every table**. The `anon` role has no access to any app table, including tables added by future migrations (default privileges revoked).
 - Functions use `set search_path = ''` and fully-qualified names.
 
-| Migration                | Contents                                                                          |
-| ------------------------ | --------------------------------------------------------------------------------- |
-| `…170000_foundations`    | `pg_trgm`, enums, `set_updated_at()`, anon default privileges revoked             |
-| `…170100_users`          | `profiles` (+ sign-up trigger), `user_roles`, `is_admin()`, `user_goals`          |
-| `…170200_food_catalogue` | reference tables, `foods` and child tables, `food_submissions`, `can_edit_food()` |
-| `…170300_logging`        | `food_log_entries` (+ snapshot trigger), `weight_entries`, `water_entries`        |
-| `…170400_ai`             | recognition jobs, candidates, assistant conversations and messages                |
-| `…170500_billing`        | `entitlements`, `ai_usage`                                                        |
-| `…170600_audit`          | `audit_log` and triggers on all catalogue tables                                  |
-| `…170700_storage`        | private `meal-photos` bucket and owner-only policies                              |
+| Migration                | Contents                                                                                                |
+| ------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `…170000_foundations`    | `pg_trgm`, enums, `set_updated_at()`, anon default privileges revoked                                   |
+| `…170100_users`          | `profiles` (+ sign-up trigger), `user_roles`, `is_admin()`, `user_goals`                                |
+| `…170200_food_catalogue` | reference tables, `foods` and child tables, `food_submissions`, `can_edit_food()`                       |
+| `…170300_logging`        | `food_log_entries` (+ snapshot trigger), `weight_entries`, `water_entries`                              |
+| `…170400_ai`             | recognition jobs, candidates, assistant conversations and messages                                      |
+| `…170500_billing`        | `entitlements`, `ai_usage`                                                                              |
+| `…170600_audit`          | `audit_log` and triggers on all catalogue tables                                                        |
+| `…170700_storage`        | private `meal-photos` bucket and owner-only policies                                                    |
+| `…180000_onboarding`     | `profiles.strength_trains`; 18+ trigger; calorie-floor trigger on `user_goals`; `complete_onboarding()` |
 
 ---
 
@@ -58,11 +59,11 @@ erDiagram
 
 ### Users
 
-| Table        | Key columns                                                                                                                                                                   | Notes                                                                          |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `profiles`   | `id` (= auth user id), display_name, sex, date_of_birth, height_cm, activity_level, onboarding_completed_at, health_data_consent_at, consent_version, photo_evaluation_opt_in | Created by trigger on sign-up. Photo evaluation is opt-in (default false)      |
-| `user_roles` | user_id, role (`admin`)                                                                                                                                                       | No write policies: granted only with the service role                          |
-| `user_goals` | goal_type, target_weight_kg, target_rate_kg_per_week, calorie_target, protein_g, carbs_g, fat_g, water_ml, is_override, effective_from                                        | History: insert-only; latest effective row is active. Broad sanity bounds only |
+| Table        | Key columns                                                                                                                                                                                    | Notes                                                                                              |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `profiles`   | `id` (= auth user id), display_name, sex, date_of_birth, height_cm, activity_level, strength_trains, onboarding_completed_at, health_data_consent_at, consent_version, photo_evaluation_opt_in | Created by trigger on sign-up. 18+ enforced by trigger. Photo evaluation is opt-in (default false) |
+| `user_roles` | user_id, role (`admin`)                                                                                                                                                                        | No write policies: granted only with the service role                                              |
+| `user_goals` | goal_type, target_weight_kg, target_rate_kg_per_week, calorie_target, protein_g, carbs_g, fat_g, water_ml, is_override, effective_from                                                         | History: insert-only; latest effective row is active. Broad sanity bounds only                     |
 
 ### Food catalogue
 
@@ -137,6 +138,10 @@ Helpers: `is_admin()` (security definer, reads `user_roles`) and `can_edit_food(
 Even admins cannot read other users' profiles, logs or custom foods.
 
 ## 4. Integrity rules
+
+- Users must be 18 or older (trigger on `profiles.date_of_birth`).
+- Every goal, including a user override, must meet the calorie floor: 1,200 kcal (female) / 1,500 kcal (male; also when sex is unknown). Mirrors `packages/core` (ADR-031).
+- Onboarding (profile, consent, first weigh-in, first goal) is saved in one transaction by `complete_onboarding()`; it runs with the user's permissions, so RLS and triggers still apply.
 
 - `CHECK` constraints: quantity 0–10,000; grams > 0; weight 20–400 kg; water 1–5,000 ml per entry; height 50–272 cm; calorie target 500–10,000 (safety floors live in `packages/core`, ADR-024).
 - Per-100 g plausibility: energy 0–900 kcal; protein/carbs/fat/fibre/sugar 0–100 g; sodium 0–40,000 mg.

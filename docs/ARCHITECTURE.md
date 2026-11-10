@@ -104,7 +104,10 @@ with the user question to the AI provider under the guardrail system prompt, and
 
 ## 5. Authentication and authorisation
 
-- Supabase Auth: email/password, Google and Apple (ADR-025).
+- Supabase Auth with email/password; email confirmation and password reset use 6-digit codes typed into the app (ADR-031). Google and Apple (ADR-025) are added once credentials exist.
+- **Web:** sessions live in cookies (`@supabase/ssr`). `apps/web/src/proxy.ts` refreshes the session on every request and gates pages using `getClaims()` (verified JWT). Signed-in screens are client components calling `@nutritrack/api-client` (ADR-032).
+- **Mobile:** sessions live on the device in AsyncStorage, refreshed only while the app is in the foreground. Expo Router `Stack.Protected` shows signed-in or signed-out screens based on the session.
+- Onboarding is saved atomically by the `complete_onboarding` database function; targets are computed by `packages/core` and the database re-checks age and calorie floors.
 - `profiles` row created on sign-up via trigger.
 - Roles: `user` (default) and `admin`, stored in `user_roles`; admin checks enforced in RLS policies and server endpoints, never only in UI.
 

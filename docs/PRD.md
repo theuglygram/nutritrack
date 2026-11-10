@@ -50,10 +50,10 @@ Release scope (ADR-026): **Release 1** = 6.1–6.4, 6.7–6.9 and admin food man
 
 ### 6.1 Account and onboarding (Release 1)
 
-- Sign up, sign in, sign out, password reset via Supabase Auth: email/password, Google and Apple (ADR-025).
+- Sign up, sign in, sign out, password reset via Supabase Auth with email and password. Email is confirmed with a 6-digit code typed into the app; password reset uses a code too (ADR-031). Google and Apple sign-in (ADR-025) follow once credentials exist.
 - Explicit consent to processing of health data at sign-up (ADR-021).
-- Onboarding collects: sex, date of birth, height, current weight, activity level, goal (lose / maintain / gain), target weight, target rate.
-- The app computes daily calorie and macro targets deterministically: Mifflin–St Jeor BMR × activity factor (ADR-024).
+- Onboarding collects: name, sex, date of birth (18+ only), height, current weight, activity level, whether the user strength-trains, goal (lose / maintain / gain), target weight and weekly rate.
+- The app computes daily calorie and macro targets deterministically: Mifflin–St Jeor BMR × activity factor (ADR-024). Macros: protein 1.6 g/kg for strength trainers, otherwise 1.2 g/kg (max 35% of calories); fat 25% of calories; carbs the rest (ADR-031). Any safety adjustment is explained to the user.
 - Users can view and override their targets.
 - Safety: the app never recommends below 1,200 kcal (female) / 1,500 kcal (male), loss faster than ~1% body weight per week, or gain outside 0.25–0.5 kg/week (ADR-024, pending dietitian sign-off), and shows a "not medical advice" notice.
 

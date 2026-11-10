@@ -29,11 +29,15 @@ jobs:
 
       - run: pnpm check
 
+      # Public placeholder values: this job only checks that the web app builds.
       - run: pnpm --filter @nutritrack/web build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-build-placeholder
 
   database:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
 
@@ -46,8 +50,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Only the services the schema depends on (auth and storage create their own schemas).
-      - run: pnpm exec supabase start -x studio,imgproxy,edge-runtime,logflare,vector,realtime,mailpit,supavisor
+      # Services the app depends on: auth, storage and Mailpit (the test inbox for email codes).
+      - run: pnpm exec supabase start -x studio,imgproxy,edge-runtime,logflare,vector,realtime,supavisor
 
       - name: Migrations apply from zero and RLS tests pass
         run: pnpm db:test
@@ -56,3 +60,21 @@ jobs:
         run: |
           pnpm db:types
           git diff --exit-code packages/types/src/database.ts
+
+      - name: API integration tests (auth, onboarding, targets)
+        run: pnpm --filter @nutritrack/api-client test:integration
+
+      - name: Web end-to-end tests
+        run: |
+          pnpm env:local
+          pnpm --filter @nutritrack/web build
+          pnpm --filter @nutritrack/web exec playwright install --with-deps chromium
+          pnpm --filter @nutritrack/web test:e2e
+
+      - name: Upload Playwright traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: apps/web/test-results/
+          retention-days: 7

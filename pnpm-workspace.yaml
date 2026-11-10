@@ -11,6 +11,8 @@ catalog:
   "@types/react": ~19.3.0
   # ESLint 10 blocked until eslint-plugin-react / jsx-a11y / import (used by eslint-config-next) support it.
   eslint: ^9.39.5
+  # One Zod instance across the repo so instanceof ZodError works everywhere.
+  zod: ^4.6.7
 
 allowBuilds:
   sharp: false

@@ -681,6 +681,7 @@ export type Database = {
           onboarding_completed_at: string | null;
           photo_evaluation_opt_in: boolean;
           sex: Database["public"]["Enums"]["sex"] | null;
+          strength_trains: boolean | null;
           updated_at: string;
         };
         ComputedFields: never;
@@ -696,6 +697,7 @@ export type Database = {
           onboarding_completed_at?: string | null;
           photo_evaluation_opt_in?: boolean;
           sex?: Database["public"]["Enums"]["sex"] | null;
+          strength_trains?: boolean | null;
           updated_at?: string;
         };
         Update: {
@@ -710,6 +712,7 @@ export type Database = {
           onboarding_completed_at?: string | null;
           photo_evaluation_opt_in?: boolean;
           sex?: Database["public"]["Enums"]["sex"] | null;
+          strength_trains?: boolean | null;
           updated_at?: string;
         };
         Relationships: [];
@@ -912,6 +915,28 @@ export type Database = {
     };
     Functions: {
       can_edit_food: { Args: { p_food_id: string }; Returns: boolean };
+      complete_onboarding: {
+        Args: {
+          p_activity_level: Database["public"]["Enums"]["activity_level"];
+          p_calorie_target: number;
+          p_carbs_g: number;
+          p_consent_version: string;
+          p_date_of_birth: string;
+          p_display_name: string;
+          p_fat_g: number;
+          p_goal_type: Database["public"]["Enums"]["goal_type"];
+          p_height_cm: number;
+          p_measured_on: string;
+          p_protein_g: number;
+          p_sex: Database["public"]["Enums"]["sex"];
+          p_strength_trains: boolean;
+          p_target_rate_kg_per_week: number;
+          p_target_weight_kg?: number;
+          p_water_ml: number;
+          p_weight_kg: number;
+        };
+        Returns: undefined;
+      };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
     };
     Enums: {

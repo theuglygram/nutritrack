@@ -1,7 +1,7 @@
 -- Baseline security guarantees that must hold for every table, including future ones.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(7);
+select plan(8);
 
 select tables_are(
   'public',
@@ -40,6 +40,15 @@ select ok(
 select ok(
   not has_function_privilege('authenticated', 'public.audit_catalogue_change()', 'execute'),
   'users cannot call the audit trigger function directly'
+);
+
+select ok(
+  not has_function_privilege(
+    'anon',
+    'public.complete_onboarding(text, public.sex, date, numeric, public.activity_level, boolean, numeric, date, public.goal_type, numeric, integer, integer, integer, integer, integer, text, numeric)',
+    'execute'
+  ),
+  'signed-out visitors cannot call complete_onboarding'
 );
 
 -- Sign-up creates a profile.

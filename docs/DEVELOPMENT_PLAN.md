@@ -44,9 +44,9 @@ until the previous one is approved. Scope split follows ADR-026 in [DECISIONS.md
 - **Scope:** Supabase local setup, migrations for the tables in DATABASE.md, RLS policies, `is_admin()`, triggers (profile creation, audit log), entitlement tables, generated types (`packages/types`), pgTAP RLS tests and CI job. Staging/prod projects are created later, after the region latency check (before Release 1).
 - **Exit:** migrations apply cleanly from zero; RLS tests prove users cannot read or write other users' data.
 
-### Stage 03 — Auth and onboarding
+### Stage 03 — Auth and onboarding ✅
 
-- **Scope:** email/password, Google and Apple sign-in, password reset, onboarding, target calculation (ADR-024) in `packages/core`, profile editing, target override, consent capture, `packages/api-client` (typed Supabase clients for web and mobile, ADR-030), web dark mode.
+- **Scope:** email/password sign-up/in/out with 6-digit email codes, password reset, onboarding, target calculation (ADR-024, ADR-031) in `packages/core`, profile editing, target override, consent capture, `packages/api-client`, web dark mode. Google/Apple sign-in deferred until credentials exist.
 - **Exit:** unit tests for target calculation including floors and rate limits; flows work on web and mobile with all four UI states.
 
 ### Stage 04 — Food database

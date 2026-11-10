@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "@nutritrack/core": "workspace:*",
-    "zod": "^4.6.7"
+    "@nutritrack/types": "workspace:*",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@nutritrack/config": "workspace:*",
