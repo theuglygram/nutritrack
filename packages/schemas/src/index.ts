@@ -40,3 +40,5 @@ export {
 export type { FieldErrors, OnboardingDraft } from "./onboarding-flow.ts";
 export { waterEntrySchema, weightEntrySchema } from "./tracking.ts";
 export type { WaterEntryInput, WeightEntryInput } from "./tracking.ts";
+export { CUSTOM_FOOD_SERVING_UNITS, customFoodSchema, foodSearchQuerySchema } from "./food.ts";
+export type { CustomFoodInput } from "./food.ts";

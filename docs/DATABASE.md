@@ -149,6 +149,22 @@ Even admins cannot read other users' profiles, logs or custom foods.
 - A serving weight can only be marked measured (not an estimate) with a data source.
 - Logged foods cannot be deleted while referenced (deleting an account still works: the user's own entries and custom foods are removed together).
 
+## Food catalogue data and search (Stage 04)
+
+- **Reference data** (migration `20261111100000_food_search`): serving units, including Nigerian
+  portions (wrap, derica, mudu, ladle, cooking spoon) with **no** universal gram weight, and cooking
+  methods.
+- **Catalogue seed**: `supabase/seed.sql` is **generated** by `scripts/build-food-seed.mjs` from
+  `supabase/food-data/*.json` and USDA FoodData Central (CC0). Every food has a `data_source_id`;
+  none is `verified` until dietitian review. Composite dishes come only from documented recipes
+  (`recipes.json`), calculated by `recipePer100g` in `packages/core`. The seed runs on local
+  `db reset` / `db start`; staging and production are loaded at release (Stage 10).
+- **`search_foods(query, limit)`**: trigram word-similarity over names and aliases, one row per
+  food with the best-matching alias and language. Security invoker, so foods RLS applies (users see
+  global non-rejected foods and their own custom foods). Signed-in users only.
+- **`create_custom_food(...)`**: creates a private, unverified food with nutrients and an optional
+  serving in one transaction. Signed-in users only.
+
 ## 5. Commands
 
 | Command         | What it does                                       |

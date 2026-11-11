@@ -172,8 +172,9 @@ function Header({
   );
 }
 
-const ACTIONS: { label: string; icon: LucideIcon }[] = [
-  { label: "Search", icon: Search },
+/** `href` set = the feature exists (food search, Stage 04); otherwise shown disabled as "Soon". */
+const ACTIONS: { label: string; icon: LucideIcon; href?: "/food" }[] = [
+  { label: "Search", icon: Search, href: "/food" },
   { label: "Describe", icon: MessageSquareText },
   { label: "Quick entry", icon: PenLine },
 ];
@@ -208,13 +209,18 @@ function QuickActions() {
       </View>
       <View style={{ flexDirection: "row", gap: 10 }}>
         {ACTIONS.map((a) => (
-          <View
+          <Pressable
             key={a.label}
-            accessible
             accessibilityRole="button"
-            accessibilityState={{ disabled: true }}
-            accessibilityLabel={`${a.label}. Coming soon.`}
-            style={[s.action, { backgroundColor: c.card, borderColor: c.border }]}
+            accessibilityState={{ disabled: !a.href }}
+            accessibilityLabel={a.href ? `${a.label} foods` : `${a.label}. Coming soon.`}
+            disabled={!a.href}
+            onPress={() => a.href && router.navigate(a.href)}
+            style={({ pressed }) => [
+              s.action,
+              { backgroundColor: c.card, borderColor: c.border },
+              a.href ? { opacity: pressed ? 0.7 : 1 } : null,
+            ]}
           >
             <View style={[s.actionIcon, { backgroundColor: c.primarySoft }]}>
               <a.icon color={c.primary} size={20} />
@@ -222,7 +228,7 @@ function QuickActions() {
             <Text style={[s.small, { color: c.foreground, fontFamily: FONTS.bodySemibold }]}>
               {a.label}
             </Text>
-          </View>
+          </Pressable>
         ))}
       </View>
     </View>

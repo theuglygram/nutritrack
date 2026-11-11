@@ -29,7 +29,7 @@ set local role authenticated;
 set local request.jwt.claims to '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
 
 select results_eq(
-  $$ select name from public.foods order by name $$,
+  $$ select name from public.foods where id::text like 'f0000000-%' order by name $$,
   $$ values ('Unverified global'), ('Verified global') $$,
   'users see verified and unverified global foods, not rejected ones'
 );

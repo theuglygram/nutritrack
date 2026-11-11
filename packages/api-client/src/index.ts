@@ -38,3 +38,5 @@ export {
   logWeight,
 } from "./tracking.ts";
 export type { DashboardData, LogEntry, Section, WaterEntry, WeightEntry } from "./tracking.ts";
+export { createCustomFood, deleteCustomFood, getFood, listMyFoods, searchFoods } from "./foods.ts";
+export type { FoodDetail, FoodSearchResult, FoodServing, MyFood } from "./foods.ts";

@@ -32,6 +32,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en-NG"
+      // Smooth in-page anchor scrolling; Next turns it off during route changes.
+      data-scroll-behavior="smooth"
       className={`${fontDisplay.variable} ${fontBody.variable} h-full antialiased`}
       // The inline script below adds the "js" class before hydration.
       suppressHydrationWarning

@@ -19,7 +19,9 @@
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
     "db:types": "supabase gen types typescript --local --schema public > packages/types/src/database.ts && prettier --write packages/types/src/database.ts",
-    "env:local": "node scripts/write-local-env.mjs"
+    "env:local": "node scripts/write-local-env.mjs",
+    "foods:build": "node scripts/build-food-seed.mjs",
+    "foods:find": "node scripts/build-food-seed.mjs --find"
   },
   "devDependencies": {
     "prettier": "^3.9.10",

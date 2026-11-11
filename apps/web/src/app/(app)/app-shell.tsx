@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { Suspense, useEffect, type ReactNode } from "react";
 import { ErrorState, LoadingState } from "@/components/account-status";
 import { Logo } from "@/components/brand/logo";
 import { SignOutButton } from "@/components/sign-out-button";
@@ -30,7 +30,7 @@ type NavItem = {
 /** The same five destinations as the mobile app's tab bar (ADR-033). */
 export const APP_NAV: NavItem[] = [
   { href: "/home", label: "Home", icon: House },
-  { href: "/food", label: "Food", icon: UtensilsCrossed, soon: true },
+  { href: "/food", label: "Food", icon: UtensilsCrossed },
   { href: "/scan", label: "Scan", icon: ScanLine, prominent: true, soon: true },
   { href: "/progress", label: "Progress", icon: LineChart },
   { href: "/profile", label: "Profile", icon: UserRound },
@@ -39,9 +39,7 @@ export const APP_NAV: NavItem[] = [
 export function AppShell({ children }: { children: ReactNode }) {
   const { state, reload } = useAccount();
   const router = useRouter();
-  const pathname = usePathname();
   const needsOnboarding = state.status === "ready" && !isOnboarded(state.profile);
-  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   useEffect(() => {
     if (needsOnboarding) router.replace("/onboarding");
@@ -60,25 +58,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border/70 bg-card px-4 py-6 lg:flex">
         <Logo href="/home" className="px-2" />
         <nav aria-label="Main" className="mt-10 flex flex-col gap-1">
-          {APP_NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={isActive(item.href) ? "page" : undefined}
-              className={cn(
-                "group flex h-11 items-center gap-3 rounded-xl px-3 font-medium text-muted-foreground transition hover:bg-surface hover:text-foreground",
-                "aria-[current=page]:bg-primary-soft aria-[current=page]:text-primary",
-              )}
-            >
-              <item.icon className="size-5" aria-hidden="true" />
-              {item.label}
-              {item.soon && (
-                <span className="ml-auto rounded-full bg-surface px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
-                  Soon
-                </span>
-              )}
-            </Link>
-          ))}
+          <Suspense fallback={<SidebarLinks active={null} />}>
+            <ActiveLinks variant="sidebar" />
+          </Suspense>
         </nav>
         <div className="mt-auto flex flex-col gap-3 border-t border-border/70 pt-4">
           <SignOutButton />
@@ -111,26 +93,79 @@ export function AppShell({ children }: { children: ReactNode }) {
         className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden"
       >
         <ul className="mx-auto grid h-16 max-w-md grid-cols-5">
-          {APP_NAV.map((item) => (
-            <li key={item.href} className="flex">
-              <Link
-                href={item.href}
-                aria-current={isActive(item.href) ? "page" : undefined}
-                className="group flex flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground aria-[current=page]:text-primary"
-              >
-                {item.prominent ? (
-                  <span className="-mt-6 grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition group-active:scale-95">
-                    <item.icon className="size-6" aria-hidden="true" />
-                  </span>
-                ) : (
-                  <item.icon className="size-5" aria-hidden="true" />
-                )}
-                {item.label}
-              </Link>
-            </li>
-          ))}
+          <Suspense fallback={<BottomLinks active={null} />}>
+            <ActiveLinks variant="bottom" />
+          </Suspense>
         </ul>
       </nav>
     </div>
+  );
+}
+
+const isActive = (pathname: string | null, href: string) =>
+  pathname !== null && (pathname === href || pathname.startsWith(`${href}/`));
+
+/**
+ * Highlights the current page. Reading the URL can suspend while a dynamic route (e.g.
+ * /food/[id]) prerenders under Cache Components, so this sits inside <Suspense> and the
+ * fallback renders the same links without highlighting.
+ */
+function ActiveLinks({ variant }: { variant: "sidebar" | "bottom" }) {
+  const pathname = usePathname();
+  return variant === "sidebar" ? (
+    <SidebarLinks active={pathname} />
+  ) : (
+    <BottomLinks active={pathname} />
+  );
+}
+
+function SidebarLinks({ active }: { active: string | null }) {
+  return (
+    <>
+      {APP_NAV.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          aria-current={isActive(active, item.href) ? "page" : undefined}
+          className={cn(
+            "group flex h-11 items-center gap-3 rounded-xl px-3 font-medium text-muted-foreground transition hover:bg-surface hover:text-foreground",
+            "aria-[current=page]:bg-primary-soft aria-[current=page]:text-primary",
+          )}
+        >
+          <item.icon className="size-5" aria-hidden="true" />
+          {item.label}
+          {item.soon && (
+            <span className="ml-auto rounded-full bg-surface px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+              Soon
+            </span>
+          )}
+        </Link>
+      ))}
+    </>
+  );
+}
+
+function BottomLinks({ active }: { active: string | null }) {
+  return (
+    <>
+      {APP_NAV.map((item) => (
+        <li key={item.href} className="flex">
+          <Link
+            href={item.href}
+            aria-current={isActive(active, item.href) ? "page" : undefined}
+            className="group flex flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground aria-[current=page]:text-primary"
+          >
+            {item.prominent ? (
+              <span className="-mt-6 grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition group-active:scale-95">
+                <item.icon className="size-6" aria-hidden="true" />
+              </span>
+            ) : (
+              <item.icon className="size-5" aria-hidden="true" />
+            )}
+            {item.label}
+          </Link>
+        </li>
+      ))}
+    </>
   );
 }

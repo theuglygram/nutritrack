@@ -10,9 +10,9 @@ insert into auth.users (id, email, instance_id, aud, role) values
 
 -- Fixtures (test values only — not real food data).
 insert into public.serving_units (id, name, kind, grams_per_unit) values
-  ('a0000000-0000-0000-0000-000000000001', 'gram', 'mass', 1),
-  ('a0000000-0000-0000-0000-000000000002', 'wrap', 'count', null),
-  ('a0000000-0000-0000-0000-000000000003', 'derica', 'volume', null);
+  ('a0000000-0000-0000-0000-000000000001', 'test gram', 'mass', 1),
+  ('a0000000-0000-0000-0000-000000000002', 'test wrap', 'count', null),
+  ('a0000000-0000-0000-0000-000000000003', 'test derica', 'volume', null);
 insert into public.foods (id, name, verification_status) values
   ('f0000000-0000-0000-0000-000000000001', 'Test swallow', 'unverified'),
   ('f0000000-0000-0000-0000-000000000002', 'Rounding food', 'unverified'),

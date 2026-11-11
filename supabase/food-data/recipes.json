@@ -1,0 +1,8 @@
+{
+  "_about": [
+    "Composite dishes calculated from documented recipes (ADR-013). Empty until recipes are sourced and the cooked yield is measured.",
+    "Shape: { name, category, yieldGrams (weighed cooked weight), source: { name, citation, url?, licence? }, ingredients: [{ food: 'usda:<fdcId>', grams }] }",
+    "Never fill this with guessed proportions: that would be inventing nutrition values."
+  ],
+  "recipes": []
+}

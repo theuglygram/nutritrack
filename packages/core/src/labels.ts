@@ -44,3 +44,27 @@ export const NOT_MEDICAL_ADVICE =
 
 export const HEALTH_DATA_CONSENT =
   "I agree that NutriTrack may store and process my health information (such as my weight, height, age and food intake) to calculate my targets and track my progress. I can delete my account and data at any time.";
+
+/** How each verification status is shown to users (ADR-013). Unverified data is always labelled. */
+export const VERIFICATION_LABELS = {
+  verified: { label: "Verified", description: "Checked by our dietitian against its source." },
+  unverified: {
+    label: "Not yet reviewed",
+    description: "From a documented source, waiting for dietitian review.",
+  },
+  rejected: { label: "Rejected", description: "Removed after review." },
+} as const;
+
+export const CUSTOM_FOOD_LABEL = {
+  label: "Your food",
+  description: "Added by you. Only you can see it, and its values haven't been checked.",
+} as const;
+
+/** Language codes used for local food names. */
+export const FOOD_LANGUAGE_LABELS = {
+  en: "English",
+  yo: "Yoruba",
+  ig: "Igbo",
+  ha: "Hausa",
+  pcm: "Pidgin",
+} as const;

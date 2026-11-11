@@ -937,7 +937,41 @@ export type Database = {
         };
         Returns: undefined;
       };
+      create_custom_food: {
+        Args: {
+          p_carbs_g: number;
+          p_category: string;
+          p_energy_kcal: number;
+          p_fat_g: number;
+          p_fibre_g?: number;
+          p_name: string;
+          p_protein_g: number;
+          p_serving_grams?: number;
+          p_serving_unit?: string;
+          p_sodium_mg?: number;
+          p_sugar_g?: number;
+        };
+        Returns: string;
+      };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      search_foods: {
+        Args: { p_limit?: number; p_query: string };
+        Returns: {
+          carbs_g: number;
+          category: string;
+          energy_kcal: number;
+          fat_g: number;
+          id: string;
+          is_custom: boolean;
+          matched_alias: string;
+          matched_language: string;
+          name: string;
+          protein_g: number;
+          score: number;
+          source_name: string;
+          verification_status: Database["public"]["Enums"]["verification_status"];
+        }[];
+      };
     };
     Enums: {
       activity_level: "sedentary" | "light" | "moderate" | "active" | "very_active";

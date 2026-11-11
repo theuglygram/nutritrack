@@ -36,3 +36,6 @@ pnpm-debug.log*
 # playwright
 apps/web/test-results/
 apps/web/playwright-report/
+
+# Downloaded datasets (scripts/build-food-seed.mjs)
+.cache/

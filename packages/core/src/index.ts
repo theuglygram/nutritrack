@@ -1,12 +1,15 @@
 export { APP_DESCRIPTION, APP_NAME, APP_TAGLINE } from "./product.ts";
 export {
   ACTIVITY_LEVEL_LABELS,
+  CUSTOM_FOOD_LABEL,
+  FOOD_LANGUAGE_LABELS,
   GOAL_TYPE_LABELS,
   HEALTH_DATA_CONSENT,
   NOT_MEDICAL_ADVICE,
   RATE_OPTIONS_KG_PER_WEEK,
   SEX_LABELS,
   TARGET_ADJUSTMENT_MESSAGES,
+  VERIFICATION_LABELS,
 } from "./labels.ts";
 export {
   NUTRIENT_DECIMALS,
@@ -68,3 +71,5 @@ export type {
 } from "./daily.ts";
 export { BRAND_COLORS, BRAND_FONTS, BRAND_RADIUS } from "./brand.ts";
 export type { BrandColorName, BrandPalette } from "./brand.ts";
+export { recipePer100g } from "./recipes.ts";
+export type { RecipeIngredient } from "./recipes.ts";

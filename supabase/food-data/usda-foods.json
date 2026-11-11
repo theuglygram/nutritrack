@@ -1,0 +1,481 @@
+{
+  "_about": [
+    "Global foods imported from USDA FoodData Central SR Legacy (CC0). Edit, then run: node scripts/build-food-seed.mjs",
+    "Names describe exactly what USDA measured. Never rename an ingredient into a Nigerian dish; dishes come from documented recipes (recipes.json).",
+    "Local names (yo = Yoruba, ig = Igbo, ha = Hausa, pcm = Pidgin) are PENDING NATIVE-SPEAKER REVIEW. They only affect search, never nutrition.",
+    "No alias is given where the USDA item is not the Nigerian product (e.g. watermelon seeds are not egusi)."
+  ],
+  "foods": [
+    {
+      "fdcId": 168878,
+      "name": "Rice, white, boiled",
+      "category": "Grains and starches",
+      "cookingMethod": "Boiled",
+      "aliases": [
+        ["iresi", "yo"],
+        ["shinkafa", "ha"],
+        ["osikapa", "ig"]
+      ]
+    },
+    {
+      "fdcId": 169708,
+      "name": "Rice, parboiled, boiled",
+      "category": "Grains and starches",
+      "cookingMethod": "Boiled"
+    },
+    {
+      "fdcId": 168877,
+      "name": "Rice, white, uncooked",
+      "category": "Grains and starches",
+      "cookingMethod": "Raw"
+    },
+    {
+      "fdcId": 169737,
+      "name": "Spaghetti (pasta), boiled",
+      "category": "Grains and starches",
+      "cookingMethod": "Boiled",
+      "aliases": [
+        ["spaghetti", "en"],
+        ["macaroni", "en"]
+      ]
+    },
+    {
+      "fdcId": 174924,
+      "name": "Bread, white",
+      "category": "Grains and starches",
+      "aliases": [["burodi", "yo"]]
+    },
+    {
+      "fdcId": 168936,
+      "name": "Wheat flour, white",
+      "category": "Grains and starches",
+      "cookingMethod": "Raw"
+    },
+    {
+      "fdcId": 169705,
+      "name": "Oats, uncooked",
+      "category": "Grains and starches",
+      "cookingMethod": "Raw"
+    },
+    {
+      "fdcId": 169999,
+      "name": "Corn (maize), sweet, boiled",
+      "category": "Grains and starches",
+      "cookingMethod": "Boiled",
+      "aliases": [
+        ["agbado", "yo"],
+        ["masara", "ha"],
+        ["oka", "ig"]
+      ]
+    },
+    {
+      "fdcId": 170290,
+      "name": "Corn (maize) flour, whole-grain",
+      "category": "Grains and starches",
+      "cookingMethod": "Raw"
+    },
+    {
+      "fdcId": 168871,
+      "name": "Millet, cooked",
+      "category": "Grains and starches",
+      "cookingMethod": "Boiled",
+      "aliases": [["gero", "ha"]]
+    },
+    {
+      "fdcId": 169716,
+      "name": "Sorghum (guinea corn), grain",
+      "category": "Grains and starches",
+      "cookingMethod": "Raw",
+      "aliases": [
+        ["guinea corn", "en"],
+        ["dawa", "ha"],
+        ["oka baba", "yo"]
+      ]
+    },
+
+    {
+      "fdcId": 170072,
+      "name": "Yam, boiled",
+      "category": "Roots and tubers",
+      "cookingMethod": "Boiled",
+      "aliases": [
+        ["isu", "yo"],
+        ["doya", "ha"],
+        ["ji", "ig"]
+      ]
+    },
+    { "fdcId": 170071, "name": "Yam, raw", "category": "Roots and tubers", "cookingMethod": "Raw" },
+    {
+      "fdcId": 169985,
+      "name": "Cassava, raw",
+      "category": "Roots and tubers",
+      "cookingMethod": "Raw",
+      "aliases": [
+        ["gbaguda", "yo"],
+        ["rogo", "ha"]
+      ]
+    },
+    {
+      "fdcId": 168486,
+      "name": "Cocoyam (taro), boiled",
+      "category": "Roots and tubers",
+      "cookingMethod": "Boiled",
+      "aliases": [
+        ["cocoyam", "en"],
+        ["gwaza", "ha"]
+      ],
+      "notes": "USDA taro is Colocasia; some Nigerian cocoyam is Xanthosoma, which may differ."
+    },
+    {
+      "fdcId": 168484,
+      "name": "Sweet potato, boiled",
+      "category": "Roots and tubers",
+      "cookingMethod": "Boiled",
+      "aliases": [["dankali", "ha"]]
+    },
+    {
+      "fdcId": 169130,
+      "name": "Plantain, ripe, raw",
+      "category": "Roots and tubers",
+      "cookingMethod": "Raw",
+      "aliases": [["ogede agbagba", "yo"]]
+    },
+    {
+      "fdcId": 168200,
+      "name": "Plantain, ripe, fried",
+      "category": "Roots and tubers",
+      "cookingMethod": "Fried",
+      "aliases": [
+        ["dodo", "yo"],
+        ["fried plantain", "en"]
+      ],
+      "notes": "USDA restaurant sample of fried ripe plantain; oil absorbed varies with how it is fried."
+    },
+    {
+      "fdcId": 168216,
+      "name": "Plantain, unripe, boiled",
+      "category": "Roots and tubers",
+      "cookingMethod": "Boiled"
+    },
+
+    {
+      "fdcId": 173759,
+      "name": "Beans (cowpeas), boiled",
+      "category": "Legumes and nuts",
+      "cookingMethod": "Boiled",
+      "aliases": [
+        ["ewa", "yo"],
+        ["wake", "ha"],
+        ["agwa", "ig"],
+        ["black-eyed beans", "en"]
+      ]
+    },
+    {
+      "fdcId": 173758,
+      "name": "Beans (cowpeas), dry, uncooked",
+      "category": "Legumes and nuts",
+      "cookingMethod": "Raw"
+    },
+    {
+      "fdcId": 175194,
+      "name": "Kidney beans, boiled",
+      "category": "Legumes and nuts",
+      "cookingMethod": "Boiled"
+    },
+    {
+      "fdcId": 172430,
+      "name": "Groundnuts (peanuts), raw",
+      "category": "Legumes and nuts",
+      "cookingMethod": "Raw",
+      "aliases": [
+        ["groundnut", "en"],
+        ["epa", "yo"],
+        ["gyada", "ha"],
+        ["ahuekere", "ig"]
+      ]
+    },
+    {
+      "fdcId": 173806,
+      "name": "Groundnuts (peanuts), roasted",
+      "category": "Legumes and nuts",
+      "cookingMethod": "Roasted",
+      "aliases": [["roasted groundnut", "en"]]
+    },
+    { "fdcId": 172470, "name": "Peanut butter, smooth, unsalted", "category": "Legumes and nuts" },
+    {
+      "fdcId": 169407,
+      "name": "Watermelon seed kernels, dried",
+      "category": "Legumes and nuts",
+      "cookingMethod": "Raw",
+      "notes": "Not egusi: egusi comes from a different melon and may differ in fat and protein."
+    },
+
+    {
+      "fdcId": 169261,
+      "name": "Okra, boiled",
+      "category": "Vegetables",
+      "cookingMethod": "Boiled",
+      "aliases": [
+        ["ila", "yo"],
+        ["kubewa", "ha"],
+        ["okwuru", "ig"],
+        ["okro", "pcm"]
+      ]
+    },
+    {
+      "fdcId": 169202,
+      "name": "Amaranth leaves, boiled",
+      "category": "Vegetables",
+      "cookingMethod": "Boiled",
+      "aliases": [
+        ["efo tete", "yo"],
+        ["alayyafo", "ha"]
+      ]
+    },
+    {
+      "fdcId": 168463,
+      "name": "Spinach, boiled",
+      "category": "Vegetables",
+      "cookingMethod": "Boiled"
+    },
+    {
+      "fdcId": 170457,
+      "name": "Tomatoes, raw",
+      "category": "Vegetables",
+      "cookingMethod": "Raw",
+      "aliases": [
+        ["tomati", "yo"],
+        ["tumatur", "ha"]
+      ]
+    },
+    {
+      "fdcId": 170000,
+      "name": "Onions, raw",
+      "category": "Vegetables",
+      "cookingMethod": "Raw",
+      "aliases": [
+        ["alubosa", "yo"],
+        ["albasa", "ha"],
+        ["yabasi", "ig"]
+      ]
+    },
+    {
+      "fdcId": 170106,
+      "name": "Chilli pepper, red, raw",
+      "category": "Vegetables",
+      "cookingMethod": "Raw",
+      "aliases": [
+        ["ata", "yo"],
+        ["barkono", "ha"],
+        ["pepper", "pcm"]
+      ],
+      "notes": "USDA hot chilli; scotch bonnet (ata rodo) may differ slightly."
+    },
+    {
+      "fdcId": 169231,
+      "name": "Ginger, raw",
+      "category": "Vegetables",
+      "cookingMethod": "Raw",
+      "aliases": [
+        ["ata ile", "yo"],
+        ["citta", "ha"]
+      ]
+    },
+    {
+      "fdcId": 169230,
+      "name": "Garlic, raw",
+      "category": "Vegetables",
+      "cookingMethod": "Raw",
+      "aliases": [
+        ["ayu", "yo"],
+        ["tafarnuwa", "ha"]
+      ]
+    },
+    { "fdcId": 169975, "name": "Cabbage, raw", "category": "Vegetables", "cookingMethod": "Raw" },
+    { "fdcId": 170393, "name": "Carrots, raw", "category": "Vegetables", "cookingMethod": "Raw" },
+    { "fdcId": 168409, "name": "Cucumber, raw", "category": "Vegetables", "cookingMethod": "Raw" },
+
+    {
+      "fdcId": 173944,
+      "name": "Banana, raw",
+      "category": "Fruits",
+      "cookingMethod": "Raw",
+      "aliases": [
+        ["ogede wewe", "yo"],
+        ["ayaba", "ha"]
+      ]
+    },
+    {
+      "fdcId": 169097,
+      "name": "Orange, raw",
+      "category": "Fruits",
+      "cookingMethod": "Raw",
+      "aliases": [
+        ["osan", "yo"],
+        ["lemu", "ha"]
+      ]
+    },
+    {
+      "fdcId": 169124,
+      "name": "Pineapple, raw",
+      "category": "Fruits",
+      "cookingMethod": "Raw",
+      "aliases": [
+        ["ope oyinbo", "yo"],
+        ["abarba", "ha"]
+      ]
+    },
+    {
+      "fdcId": 169910,
+      "name": "Mango, raw",
+      "category": "Fruits",
+      "cookingMethod": "Raw",
+      "aliases": [
+        ["mangoro", "yo"],
+        ["mangwaro", "ha"]
+      ]
+    },
+    {
+      "fdcId": 167765,
+      "name": "Watermelon, raw",
+      "category": "Fruits",
+      "cookingMethod": "Raw",
+      "aliases": [["kankana", "ha"]]
+    },
+    {
+      "fdcId": 169926,
+      "name": "Pawpaw (papaya), raw",
+      "category": "Fruits",
+      "cookingMethod": "Raw",
+      "aliases": [
+        ["pawpaw", "en"],
+        ["ibepe", "yo"],
+        ["gwanda", "ha"]
+      ]
+    },
+    {
+      "fdcId": 171705,
+      "name": "Avocado, raw",
+      "category": "Fruits",
+      "cookingMethod": "Raw",
+      "aliases": [["pear", "pcm"]]
+    },
+    {
+      "fdcId": 170169,
+      "name": "Coconut, raw",
+      "category": "Fruits",
+      "cookingMethod": "Raw",
+      "aliases": [
+        ["agbon", "yo"],
+        ["kwakwa", "ha"]
+      ]
+    },
+
+    {
+      "fdcId": 175177,
+      "name": "Tilapia, grilled",
+      "category": "Fish and seafood",
+      "cookingMethod": "Grilled"
+    },
+    {
+      "fdcId": 175166,
+      "name": "Catfish, grilled",
+      "category": "Fish and seafood",
+      "cookingMethod": "Grilled",
+      "aliases": [["eja aro", "yo"]],
+      "notes": "USDA farmed channel catfish, cooked with dry heat."
+    },
+    {
+      "fdcId": 171994,
+      "name": "Mackerel, grilled",
+      "category": "Fish and seafood",
+      "cookingMethod": "Grilled",
+      "aliases": [["titus", "pcm"]],
+      "notes": "USDA Pacific and jack mackerel, cooked with dry heat."
+    },
+    { "fdcId": 173708, "name": "Tuna, canned in oil, drained", "category": "Fish and seafood" },
+
+    {
+      "fdcId": 168649,
+      "name": "Beef, lean, grilled",
+      "category": "Meat and poultry",
+      "cookingMethod": "Grilled",
+      "aliases": [
+        ["eran malu", "yo"],
+        ["naman sa", "ha"],
+        ["anu ehi", "ig"]
+      ]
+    },
+    {
+      "fdcId": 175304,
+      "name": "Goat meat, roasted",
+      "category": "Meat and poultry",
+      "cookingMethod": "Roasted",
+      "aliases": [
+        ["eran ewure", "yo"],
+        ["naman akuya", "ha"],
+        ["anu ewu", "ig"]
+      ]
+    },
+    {
+      "fdcId": 171451,
+      "name": "Chicken, meat only, stewed",
+      "category": "Meat and poultry",
+      "cookingMethod": "Stewed",
+      "aliases": [
+        ["eran adie", "yo"],
+        ["naman kaza", "ha"],
+        ["anu okuko", "ig"]
+      ]
+    },
+    {
+      "fdcId": 173612,
+      "name": "Chicken drumstick with skin, roasted",
+      "category": "Meat and poultry",
+      "cookingMethod": "Roasted"
+    },
+
+    {
+      "fdcId": 173424,
+      "name": "Egg, boiled",
+      "category": "Eggs and dairy",
+      "cookingMethod": "Boiled",
+      "aliases": [
+        ["eyin", "yo"],
+        ["kwai", "ha"],
+        ["akwa", "ig"]
+      ]
+    },
+    {
+      "fdcId": 173423,
+      "name": "Egg, fried",
+      "category": "Eggs and dairy",
+      "cookingMethod": "Fried"
+    },
+    { "fdcId": 171276, "name": "Milk, evaporated", "category": "Eggs and dairy" },
+    { "fdcId": 171265, "name": "Milk, whole", "category": "Eggs and dairy" },
+    { "fdcId": 170876, "name": "Milk powder, whole", "category": "Eggs and dairy" },
+
+    {
+      "fdcId": 171015,
+      "name": "Palm oil",
+      "category": "Oils and fats",
+      "aliases": [
+        ["epo pupa", "yo"],
+        ["manja", "ha"],
+        ["red oil", "pcm"]
+      ]
+    },
+    {
+      "fdcId": 172370,
+      "name": "Vegetable oil (soybean)",
+      "category": "Oils and fats",
+      "aliases": [["ororo", "yo"]]
+    },
+
+    { "fdcId": 169655, "name": "Sugar, white", "category": "Drinks and sweeteners" },
+    { "fdcId": 174852, "name": "Cola soft drink", "category": "Drinks and sweeteners" },
+    { "fdcId": 173227, "name": "Black tea, brewed", "category": "Drinks and sweeteners" },
+    { "fdcId": 169593, "name": "Cocoa powder, unsweetened", "category": "Drinks and sweeteners" }
+  ]
+}

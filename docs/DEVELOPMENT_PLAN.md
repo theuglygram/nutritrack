@@ -54,10 +54,11 @@ until the previous one is approved. Scope split follows ADR-026 in [DECISIONS.md
 - **Scope (ADR-033):** public landing page; signed-in dashboard on web and mobile with real targets, today's food log (read and delete), water and weight entry (pulled forward from Stage 07), Progress page, Home/Food/Scan/Progress/Profile navigation, shared brand tokens. Logging actions are shown as coming soon.
 - **Exit:** landing page has no sideways scrolling at phone, tablet, laptop and desktop widths; dashboard shows only the user's real data, with loading, empty and error states; E2E tests cover both.
 
-### Stage 04 — Food database
+### Stage 04 — Food database ✅
 
 - **Scope:** import pipeline from approved sources, aliases (en/yo/ig/ha/pcm), serving units with measured gram weights, cooking methods, fuzzy search, custom foods.
 - **Exit:** every seeded food has a source; search returns expected results for a test list of Nigerian dishes.
+- **Delivered (ADR-034):** pipeline (`scripts/build-food-seed.mjs`), 64 USDA-sourced ingredients with USDA-measured portions, local names, search and custom foods on web and mobile. Search is tested on a list of Nigerian **ingredient** names; **composite dishes wait for sourced recipes**, and FAO/Ibadan data waits for permission.
 
 ### Stage 05 — Logging
 
