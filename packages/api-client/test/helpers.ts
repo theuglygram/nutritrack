@@ -13,10 +13,19 @@ export function newClient(): NutriTrackClient {
   });
 }
 
-/** Polls Mailpit for the newest email to `email` whose subject contains `subject`; returns its 6-digit code. */
-export async function latestCode(email: string, subject: string): Promise<string> {
-  // Up to 20 s: Mailpit can be slow on shared CI runners.
+/**
+ * Polls Mailpit for the newest email to `email` whose subject contains `subject`; returns its
+ * 6-digit code. Waits up to 20 s (Mailpit can be slow on shared CI runners). If `resend` is given
+ * and nothing has arrived after 8 s, it asks for the email again once, like a user tapping
+ * "Resend code" (the first email after the stack starts can be lost in CI).
+ */
+export async function latestCode(
+  email: string,
+  subject: string,
+  resend?: () => Promise<unknown>,
+): Promise<string> {
   for (let attempt = 0; attempt < 80; attempt++) {
+    if (resend && attempt === 32) await resend();
     const res = await fetch(
       `${mailpit}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`,
     );
@@ -41,6 +50,8 @@ export async function confirmedUser(prefix: string): Promise<NutriTrackClient> {
   const client = newClient();
   const email = `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
   await signUp(client, { email, password: "jollof2026" });
-  await verifySignUpCode(client, { email, code: await latestCode(email, "confirmation code") });
+  const { resendSignUpCode } = await import("../src/index.ts");
+  const code = await latestCode(email, "confirmation code", () => resendSignUpCode(client, email));
+  await verifySignUpCode(client, { email, code });
   return client;
 }

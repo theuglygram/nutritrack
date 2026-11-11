@@ -15,6 +15,7 @@ import {
   getMyProfile,
   isOnboarded,
   requestPasswordReset,
+  resendSignUpCode,
   resetPassword,
   resetToCalculatedTargets,
   saveTargetOverride,
@@ -59,7 +60,9 @@ describe.skipIf(!configured)("auth + onboarding against local Supabase", () => {
   });
 
   it("rejects a wrong code, then confirms with the emailed code", async () => {
-    const code = await latestCode(email, "confirmation code");
+    const code = await latestCode(email, "confirmation code", () =>
+      resendSignUpCode(client, email),
+    );
     const wrong = code === "000000" ? "111111" : "000000";
     await expectApiError(verifySignUpCode(client, { email, code: wrong }), "invalid_code");
     await verifySignUpCode(client, { email, code });
