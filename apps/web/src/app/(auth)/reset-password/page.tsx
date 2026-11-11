@@ -41,7 +41,7 @@ function ResetPassword() {
     setSubmitting(true);
     try {
       await resetPassword(getSupabase(), parsed.data);
-      router.replace("/");
+      router.replace("/home");
       router.refresh();
     } catch (error) {
       setFormError(errorMessage(error));

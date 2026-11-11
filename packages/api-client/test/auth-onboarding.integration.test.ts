@@ -6,10 +6,10 @@
 import { calculateDailyTargets } from "@nutritrack/core";
 import type { OnboardingInput } from "@nutritrack/schemas";
 import { beforeAll, describe, expect, it } from "vitest";
+import { configured, latestCode, newClient } from "./helpers.ts";
 import {
   ApiError,
   completeOnboarding,
-  createNutriTrackClient,
   fromPostgrestError,
   getActiveGoal,
   getMyProfile,
@@ -22,45 +22,11 @@ import {
   signOut,
   signUp,
   verifySignUpCode,
-  type NutriTrackClient,
 } from "../src/index.ts";
-
-const url = process.env.SUPABASE_URL;
-const key = process.env.SUPABASE_PUBLISHABLE_KEY;
-const mailpit = process.env.MAILPIT_URL;
-const configured = Boolean(url && key && mailpit);
 
 const TODAY = "2026-11-10";
 const PASSWORD = "jollof2026";
 const NEW_PASSWORD = "suya4ever9";
-
-function newClient(): NutriTrackClient {
-  if (!url || !key) throw new Error("SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY are required");
-  return createNutriTrackClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
-
-/** Polls Mailpit for the newest email to `email` whose subject contains `subject`; returns its 6-digit code. */
-async function latestCode(email: string, subject: string): Promise<string> {
-  for (let attempt = 0; attempt < 40; attempt++) {
-    const res = await fetch(
-      `${mailpit}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`,
-    );
-    const body = (await res.json()) as { messages: { ID: string; Subject: string }[] };
-    const match = body.messages.find((m) => m.Subject.includes(subject));
-    if (match) {
-      const msg = (await (await fetch(`${mailpit}/api/v1/message/${match.ID}`)).json()) as {
-        Text: string;
-        HTML: string;
-      };
-      const code = /\b(\d{6})\b/.exec(msg.Text || msg.HTML)?.[1];
-      if (code) return code;
-    }
-    await new Promise((r) => setTimeout(r, 250));
-  }
-  throw new Error(`No "${subject}" email with a code arrived for ${email}`);
-}
 
 async function expectApiError(promise: Promise<unknown>, code: string): Promise<void> {
   await expect(promise).rejects.toSatisfy((e: unknown) => e instanceof ApiError && e.code === code);

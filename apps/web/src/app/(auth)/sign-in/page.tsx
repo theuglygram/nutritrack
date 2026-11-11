@@ -32,7 +32,7 @@ export default function SignInPage() {
     const client = getSupabase();
     try {
       await signIn(client, parsed.data);
-      router.replace("/");
+      router.replace("/home");
       router.refresh();
     } catch (error) {
       if (error instanceof ApiError && error.code === "email_not_confirmed") {

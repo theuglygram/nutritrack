@@ -49,6 +49,11 @@ until the previous one is approved. Scope split follows ADR-026 in [DECISIONS.md
 - **Scope:** email/password sign-up/in/out with 6-digit email codes, password reset, onboarding, target calculation (ADR-024, ADR-031) in `packages/core`, profile editing, target override, consent capture, `packages/api-client`, web dark mode. Google/Apple sign-in deferred until credentials exist.
 - **Exit:** unit tests for target calculation including floors and rate limits; flows work on web and mobile with all four UI states.
 
+### Interim — Landing page and app dashboard ✅
+
+- **Scope (ADR-033):** public landing page; signed-in dashboard on web and mobile with real targets, today's food log (read and delete), water and weight entry (pulled forward from Stage 07), Progress page, Home/Food/Scan/Progress/Profile navigation, shared brand tokens. Logging actions are shown as coming soon.
+- **Exit:** landing page has no sideways scrolling at phone, tablet, laptop and desktop widths; dashboard shows only the user's real data, with loading, empty and error states; E2E tests cover both.
+
 ### Stage 04 — Food database
 
 - **Scope:** import pipeline from approved sources, aliases (en/yo/ig/ha/pcm), serving units with measured gram weights, cooking methods, fuzzy search, custom foods.
@@ -66,7 +71,7 @@ until the previous one is approved. Scope split follows ADR-026 in [DECISIONS.md
 
 ### Stage 07 — Weight and water
 
-- **Scope:** weight entries and trend chart; water quick-add with local units and daily target.
+- **Scope:** weight entries and trend chart; water quick-add with local units and daily target. (Basic entry, quick-add and a trend line shipped early with ADR-033; this stage adds history views and gifted-charts.)
 - **Exit:** CRUD and charts working on both platforms.
 
 ### Stage 08 — Admin dashboard

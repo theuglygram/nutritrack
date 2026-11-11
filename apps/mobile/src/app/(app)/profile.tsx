@@ -38,13 +38,14 @@ const ACTIVITY_CHOICES = (Object.keys(ACTIVITY_LEVEL_LABELS) as ActivityLevel[])
   ...ACTIVITY_LEVEL_LABELS[value],
 }));
 
-export default function SettingsScreen() {
+export default function ProfileScreen() {
   const { state, reload } = useAccount();
   const [signingOut, setSigningOut] = useState(false);
   if (state.status !== "ready") return null;
 
   return (
-    <Screen edges={["bottom"]}>
+    <Screen edges={["top"]}>
+      <Heading>Profile</Heading>
       {state.goal && (
         // key resets the form when a new goal is saved
         <TargetsForm
@@ -246,7 +247,7 @@ function ProfileForm({
 
   return (
     <Card>
-      <Heading level={2}>Profile</Heading>
+      <Heading level={2}>Your details</Heading>
       <FormAlert kind={message?.kind ?? "error"} message={message?.text ?? null} />
       <TextField
         label="Name"

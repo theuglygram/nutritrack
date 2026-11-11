@@ -53,7 +53,7 @@ export default function OnboardingPage() {
   const alreadyDone = state.status === "ready" && isOnboarded(state.profile);
 
   useEffect(() => {
-    if (alreadyDone) router.replace("/");
+    if (alreadyDone) router.replace("/home");
   }, [alreadyDone, router]);
 
   if (state.status === "loading" || alreadyDone) return <LoadingState />;
@@ -99,7 +99,7 @@ function OnboardingForm() {
     setFormError(null);
     try {
       await completeOnboarding(getSupabase(), input, today);
-      router.replace("/");
+      router.replace("/home");
       router.refresh();
     } catch (error) {
       setFormError(errorMessage(error));

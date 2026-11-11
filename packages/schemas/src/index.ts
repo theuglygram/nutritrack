@@ -38,3 +38,5 @@ export {
   validateOnboardingStep,
 } from "./onboarding-flow.ts";
 export type { FieldErrors, OnboardingDraft } from "./onboarding-flow.ts";
+export { waterEntrySchema, weightEntrySchema } from "./tracking.ts";
+export type { WaterEntryInput, WeightEntryInput } from "./tracking.ts";

@@ -1,10 +1,10 @@
 import { isOnboarded } from "@nutritrack/api-client";
-import { APP_NAME } from "@nutritrack/core";
-import { Redirect, Stack, router } from "expo-router";
-import { Pressable, Text } from "react-native";
+import { Redirect, Tabs } from "expo-router";
+import { House, LineChart, ScanLine, UserRound, UtensilsCrossed } from "lucide-react-native";
+import { View } from "react-native";
 import { ErrorState, LoadingState } from "@/components/ui";
 import { AccountProvider, useAccount } from "@/lib/account";
-import { TOUCH_TARGET, useColors } from "@/lib/theme";
+import { FONTS, useColors } from "@/lib/theme";
 
 export default function SignedInLayout() {
   return (
@@ -14,6 +14,7 @@ export default function SignedInLayout() {
   );
 }
 
+/** Five destinations, matching the web sidebar (ADR-033). Scan is raised for one-handed reach. */
 function Gate() {
   const { state, reload } = useAccount();
   const c = useColors();
@@ -22,30 +23,66 @@ function Gate() {
   if (!isOnboarded(state.profile)) return <Redirect href="/onboarding" />;
 
   return (
-    <Stack
+    <Tabs
       screenOptions={{
-        headerStyle: { backgroundColor: c.background },
-        headerTintColor: c.foreground,
-        contentStyle: { backgroundColor: c.background },
+        headerShown: false,
+        sceneStyle: { backgroundColor: c.background },
+        tabBarActiveTintColor: c.primary,
+        tabBarInactiveTintColor: c.muted,
+        tabBarLabelStyle: { fontFamily: FONTS.bodyMedium, fontSize: 11 },
+        tabBarStyle: { backgroundColor: c.card, borderTopColor: c.border, minHeight: 64 },
+        tabBarItemStyle: { paddingTop: 6 },
       }}
     >
-      <Stack.Screen
+      <Tabs.Screen
         name="index"
+        options={{ title: "Home", tabBarIcon: ({ color }) => <House color={color} size={22} /> }}
+      />
+      <Tabs.Screen
+        name="food"
         options={{
-          title: APP_NAME,
-          headerRight: () => (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Settings"
-              onPress={() => router.push("/settings")}
-              style={{ minHeight: TOUCH_TARGET, justifyContent: "center", paddingHorizontal: 8 }}
+          title: "Food",
+          tabBarIcon: ({ color }) => <UtensilsCrossed color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
+        name="scan"
+        options={{
+          title: "Scan",
+          tabBarAccessibilityLabel: "Scan your meal",
+          tabBarIcon: () => (
+            <View
+              style={{
+                marginTop: -22,
+                width: 56,
+                height: 56,
+                borderRadius: 18,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: c.primary,
+                borderWidth: 4,
+                borderColor: c.card,
+              }}
             >
-              <Text style={{ color: c.foreground, fontSize: 16 }}>Settings</Text>
-            </Pressable>
+              <ScanLine color={c.primaryForeground} size={24} />
+            </View>
           ),
         }}
       />
-      <Stack.Screen name="settings" options={{ title: "Settings" }} />
-    </Stack>
+      <Tabs.Screen
+        name="progress"
+        options={{
+          title: "Progress",
+          tabBarIcon: ({ color }) => <LineChart color={color} size={22} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color }) => <UserRound color={color} size={22} />,
+        }}
+      />
+    </Tabs>
   );
 }

@@ -8,11 +8,18 @@ import {
   type Goal,
   type Profile,
 } from "@nutritrack/api-client";
-import { ACTIVITY_LEVEL_LABELS, CALORIE_FLOOR_KCAL, type ActivityLevel } from "@nutritrack/core";
+import {
+  ACTIVITY_LEVEL_LABELS,
+  APP_NAME,
+  CALORIE_FLOOR_KCAL,
+  type ActivityLevel,
+} from "@nutritrack/core";
 import { profileUpdateSchema, targetOverrideSchema } from "@nutritrack/schemas";
 import { useState, type FormEvent } from "react";
 import { ChoiceGroup } from "@/components/choice-group";
 import { FormAlert } from "@/components/form-alert";
+import { PageHeader } from "@/components/page-header";
+import { SignOutButton } from "@/components/sign-out-button";
 import { TextField } from "@/components/text-field";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,14 +32,20 @@ const ACTIVITY_CHOICES = (Object.keys(ACTIVITY_LEVEL_LABELS) as ActivityLevel[])
   ...ACTIVITY_LEVEL_LABELS[value],
 }));
 
-export default function SettingsPage() {
+export default function ProfilePage() {
   const { state, reload } = useAccount();
   if (state.status !== "ready") return null;
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+      <PageHeader title="Profile" description="Your details and daily targets." />
       {state.goal && <TargetsForm profile={state.profile} goal={state.goal} onSaved={reload} />}
       <ProfileForm profile={state.profile} goal={state.goal} onSaved={reload} />
+      <Card>
+        <CardContent className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-muted-foreground">Signed in to {APP_NAME}.</p>
+          <SignOutButton />
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -218,7 +231,7 @@ function ProfileForm({
     <Card>
       <CardHeader>
         <CardTitle>
-          <h2>Profile</h2>
+          <h2>Your details</h2>
         </CardTitle>
       </CardHeader>
       <CardContent>

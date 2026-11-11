@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseEnv } from "./lib/env";
 
-/** Pages reachable without a session. */
+/** Pages reachable without a session (the landing page is matched exactly). */
 const PUBLIC_PATHS = [
   "/sign-in",
   "/sign-up",
@@ -11,8 +11,9 @@ const PUBLIC_PATHS = [
   "/forgot-password",
   "/reset-password",
 ];
-/** Pages a signed-in user has no reason to see. */
-const SIGNED_OUT_ONLY = ["/sign-in", "/sign-up"];
+/** Pages a signed-in user has no reason to see; they go to their dashboard instead. */
+const SIGNED_OUT_ONLY = ["/", "/sign-in", "/sign-up"];
+const HOME = "/home";
 
 /**
  * Refreshes the Supabase session on every page request and gates pages by sign-in state.
@@ -38,11 +39,11 @@ export async function proxy(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const signedIn = Boolean(data?.claims.sub);
   const path = request.nextUrl.pathname;
-  const isPublic = PUBLIC_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
+  const isPublic = path === "/" || PUBLIC_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
 
   if (!signedIn && !isPublic) return redirectKeepingCookies(request, response, "/sign-in");
   if (signedIn && SIGNED_OUT_ONLY.includes(path)) {
-    return redirectKeepingCookies(request, response, "/");
+    return redirectKeepingCookies(request, response, HOME);
   }
   return response;
 }

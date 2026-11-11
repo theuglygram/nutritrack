@@ -4,6 +4,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
+  // Settings became Profile in the app navigation (ADR-033); keep old links working.
+  async redirects() {
+    return [{ source: "/settings", destination: "/profile", permanent: false }];
+  },
   turbopack: {
     rules: {
       "*.css": {

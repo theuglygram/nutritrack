@@ -102,6 +102,7 @@ Requires Node 24+ and pnpm 12 (pinned via `packageManager`). Run from the repo r
 | `pnpm env:local`                                        | Write `apps/web/.env.local` and `apps/mobile/.env` from the running local stack   |
 | `pnpm --filter @nutritrack/api-client test:integration` | Auth + onboarding against local Supabase (reads codes from Mailpit)               |
 | `pnpm --filter @nutritrack/web test:e2e`                | Playwright end-to-end tests (run `pnpm --filter @nutritrack/web build` first)     |
+| `E2E_BASE_URL=http://localhost:3000 …test:e2e`          | Same tests against a running `next dev` server (no build needed)                  |
 
 Conventions:
 

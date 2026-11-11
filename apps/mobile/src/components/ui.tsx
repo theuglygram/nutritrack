@@ -4,6 +4,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,10 +13,21 @@ import {
   type TextInputProps,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { TOUCH_TARGET, useColors } from "@/lib/theme";
+import { FONTS, RADIUS, TOUCH_TARGET, useColors } from "@/lib/theme";
 
 /** Scrollable, keyboard-aware page with safe-area padding and a readable max width. */
-export function Screen({ children, edges }: { children: ReactNode; edges?: ("top" | "bottom")[] }) {
+export function Screen({
+  children,
+  edges,
+  refreshing,
+  onRefresh,
+}: {
+  children: ReactNode;
+  edges?: ("top" | "bottom")[];
+  /** Enables pull-to-refresh when both are given. */
+  refreshing?: boolean;
+  onRefresh?: () => void;
+}) {
   const c = useColors();
   return (
     <SafeAreaView
@@ -26,7 +38,20 @@ export function Screen({ children, edges }: { children: ReactNode; edges?: ("top
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <ScrollView contentContainerStyle={styles.screen} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          contentContainerStyle={styles.screen}
+          keyboardShouldPersistTaps="handled"
+          refreshControl={
+            onRefresh ? (
+              <RefreshControl
+                refreshing={Boolean(refreshing)}
+                onRefresh={onRefresh}
+                tintColor={c.primary}
+                colors={[c.primary]}
+              />
+            ) : undefined
+          }
+        >
           <View style={styles.column}>{children}</View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -304,23 +329,24 @@ const styles = StyleSheet.create({
   column: { width: "100%", maxWidth: 480, gap: 16 },
   centerFill: { flex: 1, alignItems: "center", justifyContent: "center" },
   center: { textAlign: "center" },
-  h1: { fontSize: 26, fontWeight: "700" },
-  h2: { fontSize: 20, fontWeight: "600" },
-  body: { fontSize: 16, lineHeight: 22 },
-  small: { fontSize: 14, lineHeight: 19 },
-  label: { fontSize: 15, fontWeight: "600" },
-  card: { borderWidth: 1, borderRadius: 12, padding: 16, gap: 12 },
+  h1: { fontSize: 28, lineHeight: 32, fontFamily: FONTS.heading, letterSpacing: -0.5 },
+  h2: { fontSize: 20, lineHeight: 24, fontFamily: FONTS.headingSemibold, letterSpacing: -0.2 },
+  body: { fontSize: 16, lineHeight: 23, fontFamily: FONTS.body },
+  small: { fontSize: 14, lineHeight: 19, fontFamily: FONTS.body },
+  label: { fontSize: 15, fontFamily: FONTS.bodySemibold },
+  card: { borderWidth: 1, borderRadius: RADIUS.lg, padding: 18, gap: 12 },
   field: { gap: 6 },
   input: {
     minHeight: TOUCH_TARGET,
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: RADIUS.md,
     paddingHorizontal: 12,
     fontSize: 16,
+    fontFamily: FONTS.body,
   },
   button: {
     minHeight: TOUCH_TARGET,
-    borderRadius: 10,
+    borderRadius: RADIUS.md,
     paddingHorizontal: 16,
     flexDirection: "row",
     gap: 8,
@@ -328,22 +354,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   linkButton: { alignSelf: "center" },
-  buttonText: { fontSize: 16, fontWeight: "600" },
-  underline: { textDecorationLine: "underline", fontWeight: "500" },
+  buttonText: { fontSize: 16, fontFamily: FONTS.bodySemibold },
+  underline: { textDecorationLine: "underline", fontFamily: FONTS.bodyMedium },
   choice: {
     minHeight: TOUCH_TARGET,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: RADIUS.md,
     padding: 12,
   },
-  choiceLabel: { fontSize: 16, fontWeight: "500" },
+  choiceLabel: { fontSize: 16, fontFamily: FONTS.bodyMedium },
   radio: {
     width: 20,
     height: 20,
-    borderRadius: 10,
+    borderRadius: RADIUS.md,
     borderWidth: 2,
     alignItems: "center",
     justifyContent: "center",
@@ -359,5 +385,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 1,
   },
-  alert: { borderWidth: 1, borderRadius: 10, padding: 12 },
+  alert: { borderWidth: 1, borderRadius: RADIUS.md, padding: 12 },
 });

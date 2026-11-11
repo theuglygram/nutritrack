@@ -1,4 +1,4 @@
-export { APP_NAME, APP_TAGLINE } from "./product.ts";
+export { APP_DESCRIPTION, APP_NAME, APP_TAGLINE } from "./product.ts";
 export {
   ACTIVITY_LEVEL_LABELS,
   GOAL_TYPE_LABELS,
@@ -39,3 +39,32 @@ export type {
   TargetAdjustment,
   TargetInput,
 } from "./targets.ts";
+export {
+  MAX_WATER_ENTRY_ML,
+  MEAL_SLOTS,
+  MEAL_SLOT_LABELS,
+  WATER_PORTIONS,
+  dailyTip,
+  firstName,
+  formatLitres,
+  greetingFor,
+  groupByMealSlot,
+  isoDaysBefore,
+  progressToward,
+  sumLoggedNutrients,
+  sumWaterMl,
+  summariseWeights,
+} from "./daily.ts";
+export type {
+  DailyTip,
+  DailyTipInput,
+  DailyTotals,
+  LoggedNutrients,
+  MealSlot,
+  Progress,
+  WaterPortionId,
+  WeightPoint,
+  WeightSummary,
+} from "./daily.ts";
+export { BRAND_COLORS, BRAND_FONTS, BRAND_RADIUS } from "./brand.ts";
+export type { BrandColorName, BrandPalette } from "./brand.ts";

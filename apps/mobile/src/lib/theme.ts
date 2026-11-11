@@ -1,31 +1,37 @@
+import { BRAND_COLORS, BRAND_RADIUS } from "@nutritrack/core";
 import { useColorScheme } from "react-native";
 
-/** Colours follow the system light/dark setting, matching the web app's palette. */
-const light = {
-  background: "#FFFFFF",
-  card: "#FFFFFF",
-  foreground: "#171717",
-  muted: "#52525B",
-  border: "#E4E4E7",
-  primary: "#171717",
-  primaryForeground: "#FAFAFA",
-  destructive: "#DC2626",
-  success: "#15803D",
-  surface: "#F4F4F5",
-};
+/**
+ * Colours follow the system light/dark setting and come from the shared brand tokens in
+ * packages/core (the web app mirrors the same values as CSS variables).
+ */
+function palette(mode: "light" | "dark") {
+  const b = BRAND_COLORS[mode];
+  return {
+    background: b.background,
+    card: b.card,
+    surface: b.surface,
+    foreground: b.foreground,
+    muted: b.muted,
+    border: b.border,
+    primary: b.primary,
+    primaryForeground: b.primaryForeground,
+    primarySoft: b.primarySoft,
+    accent: b.accent,
+    accentForeground: b.accentForeground,
+    destructive: b.destructive,
+    success: b.primary,
+    protein: b.protein,
+    carbs: b.carbs,
+    fat: b.fat,
+    water: b.water,
+    forest: b.forest,
+    onForest: b.onForest,
+  };
+}
 
-const dark: typeof light = {
-  background: "#0A0A0A",
-  card: "#171717",
-  foreground: "#EDEDED",
-  muted: "#A1A1AA",
-  border: "#3F3F46",
-  primary: "#EDEDED",
-  primaryForeground: "#171717",
-  destructive: "#F87171",
-  success: "#4ADE80",
-  surface: "#27272A",
-};
+const light = palette("light");
+const dark = palette("dark");
 
 export type Colors = typeof light;
 
@@ -35,3 +41,17 @@ export function useColors(): Colors {
 
 /** Minimum touch target (WCAG / platform guidance). */
 export const TOUCH_TARGET = 48;
+
+export const RADIUS = BRAND_RADIUS;
+
+/**
+ * Loaded in the root layout. React Native picks a font file by family name, so each weight is
+ * its own family; don't combine these with fontWeight (Android would synthesise bold).
+ */
+export const FONTS = {
+  body: "Inter_400Regular",
+  bodyMedium: "Inter_500Medium",
+  bodySemibold: "Inter_600SemiBold",
+  heading: "BricolageGrotesque_700Bold",
+  headingSemibold: "BricolageGrotesque_600SemiBold",
+} as const;

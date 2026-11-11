@@ -1,39 +1,9 @@
 import { localIsoDate } from "@nutritrack/api-client";
 import { ageInYears, calculateDailyTargets } from "@nutritrack/core";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { emailedCode, label, mailpit, next, role, text } from "./helpers";
 
-// Next 16 (Cache Components) keeps visited pages mounted but hidden via <Activity>, so every
-// locator is narrowed to visible elements. Hidden pages are also out of the accessibility tree.
-const label = (page: Page, name: string) => page.getByLabel(name).filter({ visible: true });
-const role = (page: Page, r: Parameters<Page["getByRole"]>[0], name: string | RegExp) =>
-  page.getByRole(r, { name }).filter({ visible: true });
-const text = (page: Page, t: string | RegExp, exact = false) =>
-  page.getByText(t, { exact }).filter({ visible: true });
-
-const mailpit = process.env.MAILPIT_URL;
 const nf = new Intl.NumberFormat("en-NG");
-
-async function emailedCode(email: string): Promise<string> {
-  for (let attempt = 0; attempt < 40; attempt++) {
-    const res = await fetch(
-      `${mailpit}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`,
-    );
-    const { messages } = (await res.json()) as { messages: { ID: string }[] };
-    if (messages[0]) {
-      const msg = (await (await fetch(`${mailpit}/api/v1/message/${messages[0].ID}`)).json()) as {
-        Text: string;
-      };
-      const code = /\b(\d{6})\b/.exec(msg.Text)?.[1];
-      if (code) return code;
-    }
-    await new Promise((r) => setTimeout(r, 250));
-  }
-  throw new Error(`No code emailed to ${email}`);
-}
-
-async function next(page: Page) {
-  await role(page, "button", "Continue").click();
-}
 
 test.beforeAll(() => {
   if (!mailpit)
@@ -55,12 +25,12 @@ test("sign up, confirm with emailed code, onboard, override targets, sign out", 
     strengthTrains: true,
   });
 
-  // Signed-out visitors are sent to sign-in.
+  // Signed-out visitors see the landing page; its main call to action leads to sign-up.
   await page.goto("/");
-  await expect(page).toHaveURL(/\/sign-in$/);
+  await expect(role(page, "heading", /Eat better/)).toBeVisible();
+  await role(page, "link", /^Get started — Free/).click();
 
   // Sign up.
-  await role(page, "link", "Create an account").click();
   // Wait for the new page before typing (the old one stays visible until navigation finishes).
   await expect(role(page, "heading", "Create your account")).toBeVisible();
   await label(page, "Email").fill(email);
@@ -115,18 +85,20 @@ test("sign up, confirm with emailed code, onboard, override targets, sign out", 
   await page.getByRole("checkbox").filter({ visible: true }).click();
   await role(page, "button", "Start tracking").click();
 
-  // Home shows the saved targets.
-  await expect(page).toHaveURL(/\/$/);
-  await expect(role(page, "heading", "Hello, Ada")).toBeVisible();
-  await expect(text(page, nf.format(expected.calorieTarget), true)).toBeVisible();
+  // The dashboard shows the saved targets.
+  await expect(page).toHaveURL(/\/home$/);
+  await expect(role(page, "heading", /, Ada$/)).toBeVisible();
+  await expect(text(page, `${nf.format(expected.calorieTarget)} kcal`, true)).toBeVisible();
 
-  // Signed-in users are kept out of sign-in.
+  // Signed-in users are kept out of sign-in and the landing page.
   await page.goto("/sign-in");
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/home$/);
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/home$/);
 
   // Override targets: the calorie floor is enforced, then a valid override saves.
-  await role(page, "link", "Settings").click();
-  await expect(role(page, "heading", "Settings")).toBeVisible();
+  await role(page, "link", /^Profile$/).click();
+  await expect(role(page, "heading", "Profile")).toBeVisible();
   await label(page, "Calories (kcal)").fill("1100");
   await role(page, "button", "Save my targets").click();
   await expect(text(page, /minimum is 1200 kcal/)).toBeVisible();
@@ -135,13 +107,15 @@ test("sign up, confirm with emailed code, onboard, override targets, sign out", 
   await expect(page.getByRole("status").filter({ visible: true })).toContainText(
     "Your targets are saved.",
   );
-  await role(page, "link", "Today").click();
-  await expect(role(page, "heading", "Hello, Ada")).toBeVisible();
-  await expect(text(page, "1,900", true)).toBeVisible();
-  await expect(text(page, "You've set these targets yourself.")).toBeVisible();
+  await role(page, "link", /^Home$/).click();
+  await expect(role(page, "heading", /, Ada$/)).toBeVisible();
+  await expect(text(page, "1,900 kcal", true)).toBeVisible();
+  await expect(role(page, "link", "Your own targets")).toBeVisible();
 
-  // Sign out; protected pages redirect again.
-  await role(page, "button", "Sign out").click();
+  // Sign out (from Profile, which every screen size can reach); protected pages redirect again.
+  await role(page, "link", /^Profile$/).click();
+  await expect(role(page, "heading", "Profile")).toBeVisible();
+  await role(page, "button", "Sign out").first().click();
   await expect(page).toHaveURL(/\/sign-in$/);
   await page.goto("/settings");
   await expect(page).toHaveURL(/\/sign-in$/);
