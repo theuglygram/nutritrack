@@ -11,7 +11,8 @@ export const text = (page: Page, t: string | RegExp, exact = false) =>
 export const mailpit = process.env.MAILPIT_URL;
 
 export async function emailedCode(email: string): Promise<string> {
-  for (let attempt = 0; attempt < 40; attempt++) {
+  // Up to 20 s: Mailpit can be slow on shared CI runners.
+  for (let attempt = 0; attempt < 80; attempt++) {
     const res = await fetch(
       `${mailpit}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`,
     );

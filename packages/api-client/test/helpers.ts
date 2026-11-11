@@ -15,7 +15,8 @@ export function newClient(): NutriTrackClient {
 
 /** Polls Mailpit for the newest email to `email` whose subject contains `subject`; returns its 6-digit code. */
 export async function latestCode(email: string, subject: string): Promise<string> {
-  for (let attempt = 0; attempt < 40; attempt++) {
+  // Up to 20 s: Mailpit can be slow on shared CI runners.
+  for (let attempt = 0; attempt < 80; attempt++) {
     const res = await fetch(
       `${mailpit}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`,
     );

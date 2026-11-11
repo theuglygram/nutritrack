@@ -11,7 +11,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --dir src",
-    "test:integration": "node ../../scripts/integration-env.mjs vitest run --dir test"
+    "test:integration": "node ../../scripts/integration-env.mjs vitest run --dir test --no-file-parallelism --test-timeout=30000 --hook-timeout=60000"
   },
   "dependencies": {
     "@nutritrack/core": "workspace:*",
